@@ -13,11 +13,17 @@
     "@tailwindcss/vite": "^4.0.13",
     "axios": "^1.8.2",
     "chart.js": "^4.4.8",
+<<<<<<< HEAD
     "framer-motion": "^12.23.6",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.0",
     "jspdf-autotable": "^5.0.2",
     "lucide-react": "^0.525.0",
+=======
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.0",
+    "jspdf-autotable": "^5.0.2",
+>>>>>>> b71dd53d6a95e0465b5f5171b18f0edb95b8354e
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",
