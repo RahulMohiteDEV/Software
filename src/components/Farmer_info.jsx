@@ -672,7 +672,7 @@ const handlePrint = async () => {
               <div style="display: flex; gap: 15px;"> <!-- Reduced gap -->
                 <img src="startup.png" alt="Right Logo 2" style="height: 80px;" /> <!-- Smaller logo -->
                 <img src="msme.png" alt="Right Logo 2" style="height: 70px;" /> <!-- Smaller logo -->
-                <img src="Krushi.png" alt="Right Logo" style="height: 70px;" /> <!-- Smaller logo -->
+                <img src="Krushimitra Logo.jpg" alt="Right Logo" style="height: 70px;" /> <!-- Smaller logo -->
               </div>
             </div>
 
