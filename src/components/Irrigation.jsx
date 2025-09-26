@@ -549,8 +549,6 @@ const Irrigation = () => {
   .info-value {
     width: 50%;
   }
-
-
   
     .compact-address-container {
       font-family: Arial, sans-serif;
