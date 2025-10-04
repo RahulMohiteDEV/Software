@@ -43,7 +43,7 @@ const cropData = {
   Kidney_Beans: { nitrogen: 30, phosphorus: 80, potassium: 0 },
   Cow: { nitrogen: 25, phosphorus: 50, potassium: 0 },
   Safflower: { nitrogen: 50, phosphorus: 25, potassium: 25 },
-  Brocoli:{nitrogen:120, phosphorus:60, potassium:60},
+  Brocoli: { nitrogen: 120, phosphorus: 60, potassium: 60 },
 };
 
 // Marathi crop names mapping
@@ -90,14 +90,11 @@ const cropNamesMarathi = {
   Kidney_Beans: "राजमा",
   Cow: "चवळी",
   Safflower: "करडई",
-  Brocoli:"ब्रोकली ",
+  Brocoli: "ब्रोकली ",
 };
-
 
 const soilTypes = ["Red Soil", "Black Soil", "Medium Soil", "Silt"];
 const soilTypesMarathi = ["लाल माती ", "काळी माती ", "मध्यम माती ", "गाळ"];
-
-
 
 const fertilizers = {
   urea: { name: "Neem coted Urea (46% N)", nameMarathi: "नीम कोटेड युरिया (46% N)", n: 46, p: 0, k: 0 },
@@ -265,7 +262,6 @@ const translations = {
   }
 };
 
-
 const micronutrientsData = {
   en: [
     { nutrient: "Iron", range: "4.50 ppm", recommendation: "Ferrous sulphate 25 to 30 kg/ha" },
@@ -320,7 +316,7 @@ const getNutrientLevel = (nutrient, value) => {
 
 const FertilizerCalculator = () => {
   const [selectedCrop, setSelectedCrop] = useState("onion");
-  const [selectedSoil, setSelectedSoil] = useState("Sandy");
+  const [selectedSoil, setSelectedSoil] = useState("Red Soil");
   const [totalArea, setTotalArea] = useState(1);
   const [selectedFertilizers, setSelectedFertilizers] = useState({
     urea: true,
@@ -337,15 +333,6 @@ const FertilizerCalculator = () => {
     npk143514: false,
   });
 
-
-  // Function to get display name based on language
-  const getCropDisplayName = (cropKey) => {
-    if (language === 'mr') {
-      return cropNamesMarathi[cropKey] || cropKey;
-    }
-    return cropKey.charAt(0).toUpperCase() + cropKey.slice(1);
-  };
-
   const [useSoilAnalysis, setUseSoilAnalysis] = useState(false);
   const [soilAnalysis, setSoilAnalysis] = useState({
     nitrogen: "",
@@ -358,6 +345,14 @@ const FertilizerCalculator = () => {
   const t = translations[language];
   const micronutrients = micronutrientsData[language];
   const secondaryMicronutrients = secondaryMicronutrientsData[language];
+
+  // Function to get display name based on language
+  const getCropDisplayName = (cropKey) => {
+    if (language === 'mr') {
+      return cropNamesMarathi[cropKey] || cropKey;
+    }
+    return cropKey.charAt(0).toUpperCase() + cropKey.slice(1);
+  };
 
   const handleCropChange = (event) => {
     const crop = event.target.value;
@@ -502,8 +497,8 @@ const FertilizerCalculator = () => {
     );
   };
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '', 'width=800,height=600');
+const handlePrint = () => {
+    const printWindow = window.open('', '', 'width=1200,height=800');
 
     const getFertilizerName = (id) => {
       return language === 'en' ? fertilizers[id].name : fertilizers[id].nameMarathi;
@@ -513,29 +508,17 @@ const FertilizerCalculator = () => {
     const straightFertilizers = [];
     const complexFertilizers = [];
 
-    if (selectedFertilizers.urea && !selectedFertilizers.dap) {
-      straightFertilizers.push({
-        name: getFertilizerName('urea'),
-        amount: calculateFertilizer(npk.nitrogen, fertilizers.urea.n)
-      });
-    }
-
+    // Handle DAP + Urea combination
     if (selectedFertilizers.dap) {
-      // If DAP is selected, we'll handle it in the complex fertilizer section
-      // because it's typically used with urea
-      const dapAmount = calculateUreaAndDAP(npk.nitrogen, npk.phosphorus).dap;
-      const ureaAmount = calculateUreaAndDAP(npk.nitrogen, npk.phosphorus).urea;
-
+      const { urea, dap } = calculateUreaAndDAP(npk.nitrogen, npk.phosphorus);
       complexFertilizers.push({
         name: `${getFertilizerName('dap')}`,
-        amount: dapAmount,
+        amount: dap,
         supplements: [
-          { name: getFertilizerName('urea'), amount: ureaAmount }
+          { name: getFertilizerName('urea'), amount: urea }
         ]
       });
-    }
-
-    if (selectedFertilizers.urea) {
+    } else if (selectedFertilizers.urea) {
       straightFertilizers.push({
         name: getFertilizerName('urea'),
         amount: calculateFertilizer(npk.nitrogen, fertilizers.urea.n)
@@ -569,7 +552,6 @@ const FertilizerCalculator = () => {
         amount: calculateFertilizer(npk.nitrogen, fertilizers.Ammonium_Sulphate.n)
       });
     }
-
 
     // Complex fertilizers
     if (selectedFertilizers.npk123216) {
@@ -656,52 +638,270 @@ const FertilizerCalculator = () => {
       });
     }
 
+    const isMarathi = language === "mr";
+    const page1ExtraMargin = isMarathi ? 'margin-bottom: 5px;' : '';
+    const soilTableFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+    const recommendationsFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+
     printWindow.document.write(`
+      <!DOCTYPE html>
       <html>
         <head>
-          <title>${language === 'en' ? 'Fertilizer Report' : 'खत अहवाल'}</title>
+          <title>${language === 'en' ? 'Fertilizer Recommendation Report' : 'खत शिफारस अहवाल'}</title>
           <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .report-header { 
+            @page {
+              size: A4;
+              margin: 1cm;
+            }
+            body {
+              font-family: Arial, sans-serif;
+              font-size: 12px; /* ADDED: Match Soil Report body font size */
+              margin: 0;
+              padding: 0;
+              position: relative;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
+            .print-container {
+              width: 100%;
+              padding: 10px;
+            }
+            .print-section {
+              margin-bottom: 15px;
+              ${page1ExtraMargin}
+            }
+            .page-break {
+              page-break-before: always;
+            }
+            .no-break {
+              page-break-inside: avoid;
+            }
+            .avoid-break {
+              page-break-inside: avoid;
+            }
+            .force-break {
+              page-break-before: always;
+            }
+            .print-section h3 {
+              background-color: #3498db !important;
+              color: white !important;
+              padding: 6px 10px;
+              font-size: 14px; /* Match Soil Report section headers */
+              margin: 0 0 8px 0;
+              border-radius: 4px;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .print-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 10px;
+              ${soilTableFontSize}
+              page-break-inside: avoid;
+            }
+            .print-table th, .print-table td {
+              border: 1px solid #ddd;
+              padding: 4px;
+              text-align: left;
+            }
+            .print-table th {
+              background-color: #3d61cf !important;
+              color: white !important;
+              font-weight: bold;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+            .print-footer {
+              text-align: center;
+              margin-top: 15px;
+              font-style: italic;
+              color: #7f8c8d;
+              font-size: 11px; /* Match Soil Report footer */
+            }
+            .two-columns {
+              display: flex;
+              gap: 15px;
+              page-break-inside: avoid;
+            }
+            .column {
+              flex: 1;
+            }
+            .compact-address-container {
+              font-family: Arial, sans-serif;
+              width: 100%;
+              padding: 6px 0;
+              border-top: 1px solid #000;
+              border-bottom: 1px solid #000;
+              margin: 10px 0;
+              page-break-inside: avoid;
+            }
+            .address-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              flex-wrap: nowrap;
+            }
+            .address-block {
+              flex: 1;
+              min-width: 150px;
+              font-size: 10px; /* Match Soil Report address block */
+            }
+            .address-header {
               display: flex;
               align-items: center;
-              justify-content: center;
-              margin-bottom: 20px;
-              text-align: center;
+              margin-bottom: 3px;
+            }
+            .address-icon {
+              width: 12px;
+              height: 12px;
+              margin-right: 4px;
+              flex-shrink: 0;
+            }
+            .address-title {
+              font-size: 10px; /* Match Soil Report address title */
+              font-weight: bold;
+              margin: 0;
+              color: #000;
+            }
+            .address-text {
+              font-size: 9px; /* Match Soil Report address text */
+              margin: 0;
+              line-height: 1.3;
+            }
+            .separator {
+              color: #999;
+              font-size: 10px; /* Match Soil Report separator */
+              align-self: center;
+              padding: 0 3px;
+            }
+            .contact-line {
+              display: flex;
+              align-items: center;
+              margin-bottom: 2px;
+            }
+            .mini-icon {
+              width: 8px;
+              height: 8px;
+              margin-right: 3px;
+              flex-shrink: 0;
+            }
+            .header-container {
+              display: flex;
+              justify-content: space-between;
+              margin: 15px 0;
+              page-break-inside: avoid;
+            }
+            .lab-header-container {
+              text-align: left;
+              flex: 1;
+            }
+            .lab-header h2 {
+              font-size: 0.8rem; /* Match Soil Report lab header */
+              color: #000;
+              margin-top: 30px;
+              margin-bottom: 10px;
+              font-weight: bold;
+            }
+            .lab-notes {
+              font-size: 0.75rem; /* Match Soil Report lab notes */
+              color: #333;
+              margin-top: 8px;
+            }
+            .note-title {
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            .note-items {
+              list-style-type: none;
+              padding-left: 0;
+              margin-top: 0;
+              margin-bottom: 0;
+            }
+            .note-items li {
               position: relative;
+              padding-left: 12px;
+              margin-bottom: 3px;
+              line-height: 1.4;
+            }
+            .note-items li:before {
+              content: "-";
+              position: absolute;
+              left: 0;
+            }
+            .authorization-container {
+              text-align: center;
+              flex: 1;
+            }
+            .authorization-text {
+              display: inline-block;
+              text-align: left;
+              font-size: 0.8rem; /* Match Soil Report authorization */
+              color: #000;
+              margin-top: 30px;
+              margin-bottom: 10px;
+            }
+            .top-slogan-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin: 8px 0 20px;
+              padding: 0 15px;
+              page-break-inside: avoid;
+            }
+            .slogan-text {
+              flex: 1;
+              text-align: left;
+            }
+            .main-slogan {
+              font-size: 12px; /* Match Soil Report slogan */
+              font-weight: bold;
+              color: #000;
+            }
+            .center-icon {
+              flex: 1;
+              text-align: center;
+            }
+            .right-icon {
+              flex: 1;
+              text-align: right;
+            }
+            .logo-icon {
+              height: 50px;
+              object-fit: contain;
             }
             .logo-container {
-              position: absolute;
-              left: 0px;
-              top: 50%;
-              transform: translateY(-50%);
-              width:200px;
-              margin-right:800px
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              width: 100%;
+              page-break-inside: avoid;
             }
-            .logo {
-              height: 160px;
-              width: auto;
-              margin-right:800px
-            }
-            .report-section { margin-bottom: 15px; }
-            .section-title { 
-              font-size: 18px; 
-              font-weight: bold; 
-              margin-bottom: 10px; 
-              border-bottom: 1px solid #000; 
-            }
-            .info-row { display: flex; margin-bottom: 5px; }
-            .info-label { font-weight: bold; width: 150px; }
-            .info-value { flex: 1; }
-            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-            th { background-color: #3498db; }
-            .footer { margin-top: 30px; font-size: 12px; text-align: center; }
-            @page { size: auto; margin: 10mm; }
-            .fertilizer-type-title {
-              font-size: 16px;
+            .report-title {
+              font-size: 18px; /* Match Soil Report title */
               font-weight: bold;
-              margin: 15px 0 10px 0;
+              margin-bottom: 8px;
+            }
+            .report-subtitle {
+              font-size: 12px; /* Match Soil Report subtitle */
+              margin-bottom: 15px;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
+            .marathi-text {
+              line-height: 1.3;
+            }
+            .compact-recommendations {
+              ${recommendationsFontSize}
+              line-height: 1.3;
+            }
+            .fertilizer-type-title {
+              font-size: 14px; /* Match section header size */
+              font-weight: bold;
+              margin: 15px 0 8px 0;
               color: #2c3e50;
               padding-left: 5px;
               border-left: 4px solid #3498db;
@@ -713,620 +913,396 @@ const FertilizerCalculator = () => {
               padding-left: 30px !important;
               font-style: italic;
             }
-
-            .top-slogan-header {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin: 10px 0 30px;
-              padding: 0 20px;
-              font-family: Arial, sans-serif;
+            
+            /* Additional styles to match Soil Report exactly */
+            .soil-results {
+              max-height: none;
+              overflow: visible;
+              page-break-inside: avoid;
             }
-
-            .slogan-text {
-              flex: 1;
-              text-align: left;
+            
+            /* Urea note styling to match */
+            .urea-note-container {
+              width: 100%;
+              padding: 1rem;
+              background-color: white;
+              border-radius: 1rem;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              border: 1px solid #E5E7EB;
+              margin: 15px 0;
+              font-size: 11px; /* Match footer font size */
             }
-
-            .main-slogan {
-              font-size: 14px;
-              font-weight: bold;
-              color: #000;
-            }
-
-            .sub-slogan {
-              font-size: 12px;
-              color: #555;
-            }
-
-            .center-icon {
-              flex: 1;
-              text-align: center;
-            }
-
-            .right-icon {
-              flex: 1;
-              text-align: right;
-            }
-
-            .logo-icon {
-              height: 60px;
-              object-fit: contain;
+            
+            /* Ensure all text elements have consistent sizing */
+            p, div, span, td {
+              font-size: inherit;
             }
           </style>
         </head>
-        <body>
-         <div class="report-header">
-
-  <!-- Top row: logos -->
-  <div class="logo-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 10px;">
-    
-    <!-- Left logo -->
-    <div>
-      <img src="logo_com.png" alt="SATARA BIOCHEM Logo" style="height: 120px;" />
-    </div>
-
-    <!-- Right logos -->
-    <div style="display: flex; gap: 20px;">
-      
-      <img src="startup.png" alt="Right Logo 2" style="height: 100px;" />
-      <img src="msme.png" alt="Right Logo 3" style="height: 80px;" />
-    </div>
-  </div>
-
-  <!-- Horizontal line below logos -->
-  <hr style="margin: 20px 0; border: 1px solid #ccc;" />
-
-</div>   
-
-<!-- Header Section -->
-<div class="recommandation" style="margin-top: 40px;">
-
-  <!-- Horizontal line above header content -->
-  <hr style="margin-bottom: 20px; border: 1px solid  #3498db ;" />
-
-  <div class="header-content" style="margin-top: 10px; padding-left: 200px;">
-    <div class="report-title" style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">
-      ${language === 'en' ? 'Fertilizer Recommendation Report' : 'खत शिफारस अहवाल'}
-    </div>
-    <div class="report-subtitle" style="font-size: 14px; margin-bottom: 20px;">
-      ${new Date().toLocaleDateString()}
-    </div>
-  </div>
-</div>
-
-
-          
-       <!-- Outer wrapper for left and right sections -->
-<div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 40px; margin-top: 30px;">
-
-  <!-- Left column: Farm Details -->
-  <div style="flex: 1; min-width: 300px;">
-    <div class="section-title" style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">
-      ${t.farmDetails}
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.crop}:</div>
-      <div class="info-value">${language === 'en'
-        ? selectedCrop.charAt(0).toUpperCase() + selectedCrop.slice(1)
-        : cropNamesMarathi[selectedCrop] || selectedCrop}</div>
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.soilType}:</div>
-      <div class="info-value">${language === 'en'
-        ? selectedSoil
-        : soilTypesMarathi[soilTypes.indexOf(selectedSoil)]}</div>
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.area.split(" (")[0]}:</div>
-      <div class="info-value">${totalArea} ${language === 'en' ? 'hectares' : 'हेक्टर'}</div>
-    </div>
-  </div>
-
-  <!-- Right column: Soil Analysis -->
-  ${useSoilAnalysis ? `
-  <div style="flex: 1; min-width: 300px;">
-    <div class="section-title" style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">
-      ${t.soilAnalysis}
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.soilAnalysis}:</div>
-      <div class="info-value">${t.yes}</div>
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.nitrogen}:</div>
-      <div class="info-value">${soilAnalysis.nitrogen} kg/ha</div>
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.phosphorus}:</div>
-      <div class="info-value">${soilAnalysis.phosphorus} kg/ha</div>
-    </div>
-    <div class="info-row" style="display: flex; margin-bottom: 6px;">
-      <div class="info-label" style="width: 150px; font-weight: 600;">${t.potassium}:</div>
-      <div class="info-value">${soilAnalysis.potassium} kg/ha</div>
-    </div>
-  </div>
- 
-            ` : `
-            <div class="info-row">
-              <div class="info-label">${t.soilAnalysis}:</div>
-              <div class="info-value">${t.no}</div>
+        <body class="${isMarathi ? 'marathi-text' : ''}">
+          <div class="print-container">
+            <!-- Header with Logos -->
+            <div class="logo-container">
+              <div>
+                <img src="logo_com.png" alt="Left Logo" style="height: 120px;" />
+              </div>
+              <div style="display: flex; gap: 15px;">
+                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" />
+                <img src="msme.png" alt="Right Logo 2" style="height: 70px;" />
+              </div>
             </div>
-            `}
-          </div>
-          
-          <div class="report-section">
-            <div class="section-title">${t.nutrientRequirements}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>${t.nutrient}</th>
-                  <th>${t.required}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>${t.nitrogen.split(" (")[0]} (N)</td>
-                  <td>${(npk.nitrogen * totalArea).toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td>${t.phosphorus.split(" (")[0]} (P₂O₅)</td>
-                  <td>${(npk.phosphorus * totalArea).toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td>${t.potassium.split(" (")[0]} (K₂O)</td>
-                  <td>${(npk.potassium * totalArea).toFixed(2)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div class="report-section">
-            <div class="section-title">${t.fertilizerRecommendations}</div>
-            
-            ${straightFertilizers.length > 0 ? `
-            <div class="fertilizer-type-title">${language === 'en' ? 'Straight Fertilizers' : 'सरळ खते'}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>${t.fertilizer}</th>
-                  <th>${t.required}</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${straightFertilizers.map(fertilizer => `
-                <tr>
-                  <td>${fertilizer.name}</td>
-                  <td>${fertilizer.amount}</td>
-                </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            ` : ''}
-            
-            ${complexFertilizers.length > 0 ? `
-            <div class="fertilizer-type-title" style="margin-top: 20px;">${language === 'en' ? 'Complex Fertilizers' : 'कॉम्प्लेक्स खते'}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>${t.fertilizer}</th>
-                  <th>${t.required}</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${complexFertilizers.map(fertilizer => `
-                <tr>
-                  <td><strong>${fertilizer.name}</strong></td>
-                  <td><strong>${fertilizer.amount}</strong></td>
-                </tr>
-                ${fertilizer.supplements.map(supplement => `
-                <tr class="supplement-row">
-                  <td class="supplement-cell">+ ${supplement.name}</td>
-                  <td>${supplement.amount}</td>
-                </tr>
-                `).join('')}
-                `).join('')}
-              </tbody>
-            </table>
-            ` : ''}
-          </div>
-          
-          ${useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium ? `
-          <div class="report-section">
-            <div class="section-title">${t.soilAnalysisRecommendations}</div>
-            <div style="margin-bottom: 10px;">
-              <strong>${t.nitrogen.split(" (")[0]}: ${soilAnalysis.nitrogen} kg/ha</strong><br>
-              ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).level} (${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).range})<br>
-              ${language === 'en' ? getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendation : getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendationMarathi}
+
+            <hr style="width: 100%; margin-top:3px; border: 1px solid #3498db;">
+
+            <div style="margin-top:0.5px;">
+              <div style="margin-top:2px;">
+                <div style="text-align: center; margin-top: 0px;">
+                  <div class="report-title">${language === 'en' ? '🌱 Fertilizer Recommendation Report' : '🌱 खत शिफारस अहवाल'}</div>
+                  <div class="report-subtitle">${new Date().toLocaleDateString()}</div>
+                </div> 
+              </div>
+              
+              <!-- Farm Details Section -->
+              <div class="print-section avoid-break">
+                <h3>${t.farmDetails}</h3>
+                <div class="two-columns">
+                  <div class="column">
+                    <table class="print-table">
+                      <tbody>
+                        <tr>
+                          <td width="40%"><strong>${t.crop}</strong></td>
+                          <td width="60%">${language === 'en' ? selectedCrop.charAt(0).toUpperCase() + selectedCrop.slice(1) : cropNamesMarathi[selectedCrop] || selectedCrop}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>${t.soilType}</strong></td>
+                          <td>${language === 'en' ? selectedSoil : soilTypesMarathi[soilTypes.indexOf(selectedSoil)]}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="column">
+                    <table class="print-table">
+                      <tbody>
+                        <tr>
+                          <td width="40%"><strong>${t.area.split(" (")[0]}</strong></td>
+                          <td width="60%">${totalArea} ${language === 'en' ? 'hectares' : 'हेक्टर'}</td>
+                        </tr>
+                        <tr>
+                          <td><strong>${t.soilAnalysis}</strong></td>
+                          <td>${useSoilAnalysis ? t.yes : t.no}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Soil Analysis Results -->
+              ${useSoilAnalysis ? `
+              <div class="print-section avoid-break">
+                <h3>${t.soilAnalysisTitle}</h3>
+                <table class="print-table">
+                  <thead>
+                    <tr>
+                      <th>${t.nutrient}</th>
+                      <th>${t.required}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>${t.nitrogen.split(" (")[0]} (N)</td>
+                      <td>${soilAnalysis.nitrogen} kg/ha</td>
+                    </tr>
+                    <tr>
+                      <td>${t.phosphorus.split(" (")[0]} (P₂O₅)</td>
+                      <td>${soilAnalysis.phosphorus} kg/ha</td>
+                    </tr>
+                    <tr>
+                      <td>${t.potassium.split(" (")[0]} (K₂O)</td>
+                      <td>${soilAnalysis.potassium} kg/ha</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              ` : ''}
+
+              <!-- Nutrient Requirements -->
+              <div class="print-section avoid-break">
+                <h3>${t.nutrientRequirements}</h3>
+                <table class="print-table">
+                  <thead>
+                    <tr>
+                      <th>${t.nutrient}</th>
+                      <th>${t.required}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>${t.nitrogen.split(" (")[0]} (N)</td>
+                      <td>${(npk.nitrogen * totalArea).toFixed(2)} kg</td>
+                    </tr>
+                    <tr>
+                      <td>${t.phosphorus.split(" (")[0]} (P₂O₅)</td>
+                      <td>${(npk.phosphorus * totalArea).toFixed(2)} kg</td>
+                    </tr>
+                    <tr>
+                      <td>${t.potassium.split(" (")[0]} (K₂O)</td>
+                      <td>${(npk.potassium * totalArea).toFixed(2)} kg</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Fertilizer Recommendations -->
+              <div class="print-section avoid-break">
+                <h3>${t.fertilizerRecommendations}</h3>
+                
+                ${straightFertilizers.length > 0 ? `
+                <div class="fertilizer-type-title">${language === 'en' ? 'Straight Fertilizers' : 'सरळ खते'}</div>
+                <table class="print-table">
+                  <thead>
+                    <tr>
+                      <th>${t.fertilizer}</th>
+                      <th>${t.required} (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${straightFertilizers.map(fertilizer => `
+                    <tr>
+                      <td>${fertilizer.name}</td>
+                      <td>${fertilizer.amount}</td>
+                    </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+                ` : ''}
+                
+                ${complexFertilizers.length > 0 ? `
+                <div class="fertilizer-type-title">${language === 'en' ? 'Complex Fertilizers' : 'कॉम्प्लेक्स खते'}</div>
+                <table class="print-table">
+                  <thead>
+                    <tr>
+                      <th>${t.fertilizer}</th>
+                      <th>${t.required} (kg)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${complexFertilizers.map(fertilizer => `
+                    <tr>
+                      <td><strong>${fertilizer.name}</strong></td>
+                      <td><strong>${fertilizer.amount}</strong></td>
+                    </tr>
+                    ${fertilizer.supplements.map(supplement => `
+                    <tr class="supplement-row">
+                      <td class="supplement-cell">+ ${supplement.name}</td>
+                      <td>${supplement.amount}</td>
+                    </tr>
+                    `).join('')}
+                    `).join('')}
+                  </tbody>
+                </table>
+                ` : ''}
+              </div>
+
+              <!-- Soil Analysis Recommendations -->
+              ${useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium ? `
+              <div class="print-section avoid-break">
+                <h3>${t.soilAnalysisRecommendations}</h3>
+                <div style="margin-bottom: 10px; font-size: 11px;">
+                  <strong>${t.nitrogen.split(" (")[0]}: ${soilAnalysis.nitrogen} kg/ha</strong><br>
+                  ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).level} (${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).range})<br>
+                  ${language === 'en' ? getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendation : getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendationMarathi}
+                </div>
+                <div style="margin-bottom:10px; font-size: 11px;">
+                  <strong>${t.phosphorus.split(" (")[0]}: ${soilAnalysis.phosphorus} kg/ha</strong><br>
+                  ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).level} (${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).range})<br>
+                  ${language === 'en' ? getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendation : getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendationMarathi}
+                </div>
+                <div style="margin-bottom: 10px; font-size: 11px;">
+                  <strong>${t.potassium.split(" (")[0]}: ${soilAnalysis.potassium} kg/ha</strong><br>
+                  ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("potassium", soilAnalysis.potassium).level} (${getNutrientLevel("potassium", soilAnalysis.potassium).range})<br>
+                  ${language === 'en' ? getNutrientLevel("potassium", soilAnalysis.potassium).recommendation : getNutrientLevel("potassium", soilAnalysis.potassium).recommendationMarathi}
+                </div>
+              </div>
+              ` : ''}
+
+              <!-- Urea Note -->
+              <div class="urea-note-container">
+                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                  <span style="color: #EF4444; font-size: 1.125rem;">📌</span>
+                  <p style="color: #374151; margin: 0;">
+                    <span style="color: #1D4ED8; font-weight: 600;">
+                      <strong> ${language === "en" ? "Note:" : "टीप:"} </strong>
+                    </span> 
+                    ${translations[language].ureaNote}
+                  </p>
+                </div>
+              </div>
+
+              <hr style="margin: 20px 0; border: 1px solid #000;">
+
+              <!-- Secondary Micronutrients -->
+              <div class="print-section avoid-break">
+                <h3>${t.secondaryMicronutrientRecommendations}</h3>
+                <table class="print-table">
+                  <thead>
+                    <tr>
+                      <th>${t.secondaryMicronutrient}</th>
+                      <th>${t.normalLimits}</th>
+                      <th>${t.recommendation}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${secondaryMicronutrients.map(item => `
+                    <tr>
+                      <td>${item.nutrient}</td>
+                      <td>${item.range}</td>
+                      <td>${item.recommendation}</td>
+                    </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Micronutrients -->
+              <div class="print-section avoid-break">
+                <h3>${t.micronutrientRecommendations}</h3>
+                <table class="print-table">
+                  <thead>
+                    <tr>
+                      <th>${t.nutrient}</th>
+                      <th>${t.normalRange}</th>
+                      <th>${t.recommendation}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${micronutrients.map(item => `
+                    <tr>
+                      <td>${item.nutrient}</td>
+                      <td>${item.range}</td>
+                      <td>${item.recommendation}</td>
+                    </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="print-footer">
+                <p>${t.generatedBy} ${new Date().toLocaleString()}</p>
+                <p>${t.healthySoil}</p>
+              </div>
             </div>
-            <div style="margin-bottom:10px;">
-              <strong>${t.phosphorus.split(" (")[0]}: ${soilAnalysis.phosphorus} kg/ha</strong><br>
-              ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).level} (${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).range})<br>
-              ${language === 'en' ? getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendation : getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendationMarathi}
-            </div>
-            <div style="margin-bottom: 10px;">
-              <strong>${t.potassium.split(" (")[0]}: ${soilAnalysis.potassium} kg/ha</strong><br>
-              ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("potassium", soilAnalysis.potassium).level} (${getNutrientLevel("potassium", soilAnalysis.potassium).range})<br>
-              ${language === 'en' ? getNutrientLevel("potassium", soilAnalysis.potassium).recommendation : getNutrientLevel("potassium", soilAnalysis.potassium).recommendationMarathi}
-            </div>
-          </div>
-          ` : ''}
 
-            <!-- Horizontal dark black line -->
-<hr style="margin-bottom: 20px; border: 1 solid #000000;" />
+            <!-- Footer Section -->
+            <div class="header-container avoid-break">
+              <div class="lab-header-container">
+                <div class="lab-header">
+                  <h2>${t.analyst}</h2>
+                  <div class="lab-notes">
+                    <p class="note-title">${t.note}</p>
+                    <ul class="note-items">
+                      ${language === "en" ? `
+                        <li>The report cannot be used for court purpose.</li>
+                        <li>The results refer only tested samples and applicable.</li>
+                        <li>The liability of our laboratory is limited to the invoice amount.</li>
+                      ` : `
+                        <li>हा अहवाल न्यायालयीन हेतूसाठी वापरला जाऊ शकत नाही.</li>
+                        <li>निकाल केवळ चाचणी केलेल्या नमुन्यांना संदर्भित करतात आणि लागू आहेत.</li>
+                        <li>आमच्या प्रयोगशाटेची जबाबदारी चलनवाढीच्या रकमेपर्यंत मर्यादित आहे.</li>
+                      `}
+                    </ul>
+                  </div>
+                </div>
+              </div>
 
-          <div
-  style={{
-    width: "100%",
-    padding: "1rem",
-    backgroundColor: "white",
-    borderRadius: "1rem", // rounded-2xl
-    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // shadow-md
-    border: "1px solid #E5E7EB", // border-gray-200
-  }}
->
-  <div
-    style={{
-      display: "flex",
-      alignItems: "flex-start",
-      gap: "0.5rem", // space-x-2
-    }}
-  >
-    <span
-      style={{
-        color: "#EF4444", // text-red-500
-        fontSize: "1.125rem", // text-lg
-      }}
-    >
-      
-    </span>
-    <p
-      style={{
-        color: "#374151", // text-gray-800
-        fontSize: "0.875rem", // text-sm
-      }}
-    >
-      <span
-        style={{
-          color: "#1D4ED8", // text-blue-700
-          fontWeight: "600", // font-semibold
-         
-        }}
-      >
-       <strong> ${language === "en" ? "📌 Note:" : " 📌 टीप:"} </strong>
-      </span> 
-      ${translations[language].ureaNote}
-    </p>
-  </div>
-</div>
-
-
-<!-- Horizontal dark black line -->
-<hr style="margin-bottom: 20px; border: 1 solid #000000;" />
-
-           <!-- Secondary Micronutrients Section -->
-          <div class="report-section">
-            <div class="section-title">${t.secondaryMicronutrientRecommendations}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>${t.secondaryMicronutrient}</th>
-                  <th>${t.normalLimits}</th>
-                  <th>${t.recommendation}</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${secondaryMicronutrients.map(item => `
-                <tr>
-                  <td>${item.nutrient}</td>
-                  <td>${item.range}</td>
-                  <td>${item.recommendation}</td>
-                </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          
-          
-          <!-- Micronutrients Section -->
-          <div class="report-section">
-            <div class="section-title">${t.micronutrientRecommendations}</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>${t.nutrient}</th>
-                  <th>${t.normalRange}</th>
-                  <th>${t.recommendation}</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${micronutrients.map(item => `
-                <tr>
-                  <td>${item.nutrient}</td>
-                  <td>${item.range}</td>
-                  <td>${item.recommendation}</td>
-                </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-          
-         
-          <div class="footer">
-            ${t.generatedBy} ${new Date().toLocaleString()}
-          </div>
-          
-          <div class="header-container">
-            <div class="lab-header-container">
-              <div class="lab-header">
-                <h2>${t.analyst}</h2>
-                <div class="lab-notes">
-                  <p class="note-title">${t.note}</p>
-                  <ul class="note-items">
-                    <li>${t.note1}</li>
-                    <li>${t.note2}</li>
-                    <li>${t.note3}</li>
-                  </ul>
+              <div class="authorization-container">
+                <div class="signature-image">
+                  <img src="signature.png" alt="Digital Signature" style="height: 80px;" />
+                </div>
+                <div class="authorization-text">
+                  ${t.authorizedBy}<br>
+                  <strong>${language === 'en' ? 'Mr. Yogesh Nikam' : 'श्री. योगेश निकम'}<br></strong>
+                  <strong>${t.md}</strong>
                 </div>
               </div>
             </div>
-            
-           <div class="authorization-container" style="text-align: center; margin-top: 30px;">
-  
-  <!-- Signature Image -->
-  <div class="signature-image">
-    <img src="signature.png" alt="Digital Signature" style="height: 100px;" />
-  </div>
 
-  <!-- Authorization Text -->
-  <div class="authorization-text" style="margin-top: 0px;">
-    ${t.authorizedBy}<br>
-    <strong>${language === 'en' ? 'Mr. Yogesh Nikam' : 'श्री. योगेश निकम'}<br></strong>
-    <strong>${t.md}</strong>
-  </div>
-</div>
-
-          </div>
-
-          <!-- Top Header Section with Slogan and Icons -->
-<div class="top-slogan-header">
-  <div class="slogan-text">
-    <div class="main-slogan">${t.healthySoil}</div>
-    
-  </div>
-
-    <!-- Center: Mati Image -->
-  <div class="center-icon">
-    <img src="${window.location.origin}/mati.png" alt="Mati Icon" class="logo-icon" />
-  </div>
-
-     <!-- Right: Bharat Image -->
-      <div class="right-icon">
-    <img src="${window.location.origin}/Soil.png" alt="Bharat Icon" class="logo-icon" />
-    </div>
-    </div>
-  
-          
-          <div class="compact-address-container">
-            <div class="address-row">
-              <div class="address-block">
-                <div class="address-header">
-                  <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  <h4 class="address-title">${t.officeAddress}</h4>
-                </div>
-                <p class="address-text">CIII Center for Invention,Innovation,Incubatiopn,3rd Floor,G-buliding YCIS,Powai Naka,Satara</p>
+            <div class="top-slogan-header avoid-break">
+              <div class="slogan-text">
+                <div class="main-slogan">${t.healthySoil}</div>
               </div>
-              
-              <div class="separator">|</div>
-              
-              <div class="address-block">
-                <div class="address-header">
-                  <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                  </svg>
-                  <h4 class="address-title">${t.labAddress}</h4>
-                </div>
-                <p class="address-text">B-3 Dipali Complex, Near Karad Urban Bank, Dahiwadi Rd., Pusegaon. Tal- Khatav, Dist- Satara. MH. 415 502</p>
+              <div class="center-icon">
+                <img src="${window.location.origin}/mati.png" alt="Mati Icon" class="logo-icon" />
               </div>
-              
-              <div class="separator">|</div>
-              
-              <div class="address-block">
-                <div class="address-header">
-                  <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                  </svg>
-                  <h4 class="address-title">${t.contactInfo}</h4>
+              <div class="right-icon">
+                <img src="${window.location.origin}/Soil.png" alt="Bharat Icon" class="logo-icon" />
+              </div>
+            </div>
+
+            <div class="compact-address-container avoid-break">
+              <div class="address-row">
+                <div class="address-block">
+                  <div class="address-header">
+                    <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <h4 class="address-title">${t.officeAddress}</h4>
+                  </div>
+                  <p class="address-text">CIII Center for Invention,Innovation,Incubatiopn,3rd Floor,G-buliding YCIS,Powai Naka,Satara</p>
                 </div>
-                <p class="address-text">
-                  <span class="contact-line">
-                    <svg class="mini-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                
+                <div class="separator">|</div>
+                
+                <div class="address-block">
+                  <div class="address-header">
+                    <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <h4 class="address-title">${t.labAddress}</h4>
+                  </div>
+                  <p class="address-text">B-3 Dipali Complex, Near Karad Urban Bank, Dahiwadi Rd., Pusegaon. Tal- Khatav, Dist- Satara. MH. 415 502</p>
+                </div>
+                
+                <div class="separator">|</div>
+                
+                <div class="address-block">
+                  <div class="address-header">
+                    <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                     </svg>
-                    +91 93225-26581
-                  </span>
-                  <span class="contact-line">
-                    <svg class="mini-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                    </svg>
-                    satarabiochem@gmail.com
-                  </span>
-                </p>
-              </div>
-              
-              <div class="separator">|</div>
-              
-              <div class="address-block">
-                <div class="address-header">
-                  <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-                  </svg>
-                  <h4 class="address-title">${t.website}</h4>
+                    <h4 class="address-title">${t.contactInfo}</h4>
+                  </div>
+                  <p class="address-text">
+                    <span class="contact-line">
+                      <svg class="mini-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                      </svg>
+                      +91 93225-26581
+                    </span>
+                    <span class="contact-line">
+                      <svg class="mini-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                      </svg>
+                      satarabiochem@gmail.com
+                    </span>
+                  </p>
                 </div>
-                <p class="address-text">www.satarabiochem.in</p>
+                
+                <div class="separator">|</div>
+                
+                <div class="address-block">
+                  <div class="address-header">
+                    <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                    </svg>
+                    <h4 class="address-title">${t.website}</h4>
+                  </div>
+                  <p class="address-text">www.satarabiochem.in</p>
+                </div>
               </div>
             </div>
           </div>
-          
-          <style>
-          .compact-address-container {
-            font-family: Arial, sans-serif;
-            width: 100%;
-            overflow-x: auto;
-            white-space: nowrap;
-            padding: 8px 0;
-            border-top: 1px solid #000;
-            border-bottom: 1px solid #000;
-            margin: 15px 0;
-            font-size: 0;
-            overflow: hidden;
-          }
-          
-          .address-row {
-            display: inline-flex;
-            align-items: flex-start;
-            gap: 8px;
-          }
-          
-          .address-block {
-            display: inline-flex;
-            flex-direction: column;
-            white-space: normal;
-            min-width: 180px;
-            font-size: 11px;
-          }
-          
-          .address-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 4px;
-          }
-          
-          .address-icon {
-            width: 14px;
-            height: 14px;
-            margin-right: 5px;
-            flex-shrink: 0;
-          }
-          
-          .address-title {
-            font-size: 11px;
-            font-weight: bold;
-            margin: 0;
-            color: #000;
-          }
-          
-          .address-text {
-            font-size: 10px;
-            margin: 0;
-            line-height: 1.4;
-            padding-left: 19px;
-          }
-          
-          .separator {
-            color: #999;
-            font-size: 12px;
-            align-self: center;
-            padding: 0 2px;
-          }
-          
-          .contact-line {
-            display: flex;
-            align-items: center;
-            margin-bottom: 3px;
-          }
-          
-          .mini-icon {
-            width: 10px;
-            height: 10px;
-            margin-right: 4px;
-            flex-shrink: 0;
-          }
-          
-          @media (max-width: 768px) {
-            .address-block {
-              min-width: 160px;
-            }
-            .address-title {
-              font-size: 10px;
-            }
-            .address-text {
-              font-size: 9px;
-            }
-            .separator {
-              font-size: 10px;
-            }
-          }
-          
-          .header-container {
-            display: flex;
-            justify-content: space-between;
-            max-width: 800px;
-            margin: 20px 0;
-          }
-          
-          .lab-header-container {
-            text-align: left;
-            flex: 1;
-          }
-          
-          .lab-header h2 {
-            font-size: .9rem;
-            color: #000;
-            margin-top: 50px;
-            margin-bottom: 15px;
-            font-weight: bold;
-            font-family: Arial, sans-serif;
-          }
-          
-          .lab-notes {
-            font-size: 0.875rem;
-            color: #333;
-            margin-top: 10px;
-          }
-          
-          .note-title {
-            font-weight: bold;
-            margin-bottom: 8px;
-          }
-          
-          .note-items {
-            list-style-type: none;
-            padding-left: 0;
-            margin-top: 0;
-            margin-bottom: 0;
-          }
-          
-          .note-items li {
-            position: relative;
-            padding-left: 15px;
-            margin-bottom: 5px;
-            line-height: 1.5;
-          }
-          
-          .note-items li:before {
-            content: "-";
-            position: absolute;
-            left: 0;
-          }
-          
-          .authorization-container {
-            text-align: right;
-            flex: 1;
-          }
-          
-          .authorization-text {
-            display: inline-block;
-            text-align: left;
-            font-size: .9rem;
-            color: #000;
-            margin-top: 50px;
-            margin-bottom: 15px;
-          }
-          </style>
         </body>
       </html>
     `);
@@ -1335,7 +1311,7 @@ const FertilizerCalculator = () => {
     setTimeout(() => {
       printWindow.print();
       printWindow.close();
-    }, 3000);
+    }, 1000);
   };
 
   const npk = selectedCrop ? cropData[selectedCrop] : { nitrogen: 0, phosphorus: 0, potassium: 0 };
