@@ -639,8 +639,6 @@ const handlePrint = () => {
     }
 
     const isMarathi = language === "mr";
-    const hasSoilAnalysis = useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium;
-    const totalFertilizers = straightFertilizers.length + complexFertilizers.length;
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -670,7 +668,7 @@ const handlePrint = () => {
             .print-section {
               margin-bottom: 12px;
             }
-            /* Smart page break classes */
+            /* Improved page break handling */
             .page-break-before {
               page-break-before: always;
             }
@@ -947,7 +945,7 @@ const handlePrint = () => {
                 color-adjust: exact !important;
               }
               
-              /* Allow tables to break across pages */
+              /* Allow tables to break across pages naturally */
               table {
                 page-break-inside: auto;
               }
@@ -962,7 +960,7 @@ const handlePrint = () => {
                 display: table-footer-group;
               }
               
-              /* Smart section breaks */
+              /* Let browser handle section breaks naturally */
               .print-section {
                 page-break-inside: auto;
                 page-break-after: auto;
@@ -977,6 +975,17 @@ const handlePrint = () => {
               .print-footer {
                 page-break-before: avoid;
               }
+              
+              /* Better page break control */
+              .keep-together {
+                page-break-inside: avoid;
+              }
+              .break-before {
+                page-break-before: always;
+              }
+              .break-after {
+                page-break-after: always;
+              }
             }
           </style>
         </head>
@@ -988,8 +997,8 @@ const handlePrint = () => {
                 <img src="logo_com.png" alt="Left Logo" style="height: 90px;" />
               </div>
               <div style="display: flex; gap: 10px;">
-                <img src="startup.png" alt="Right Logo 2" style="height: 55px;" />
-                <img src="msme.png" alt="Right Logo 2" style="height: 45px;" />
+                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" />
+                <img src="msme.png" alt="Right Logo 2" style="height: 46px;" />
               </div>
             </div>
 
@@ -1182,8 +1191,7 @@ const handlePrint = () => {
 
               <hr style="margin: 15px 0; border: 1px solid #000;">
 
-              <!-- Smart Page Break Point - Only add if content is long -->
-              ${(hasSoilAnalysis || totalFertilizers > 4) ? '<div style="page-break-before: always;"></div>' : ''}
+              <!-- REMOVED THE FORCED PAGE BREAK - Let browser handle it naturally -->
 
               <!-- Secondary Micronutrients -->
               <div class="print-section allow-break">
@@ -1357,6 +1365,9 @@ const handlePrint = () => {
       printWindow.close();
     }, 1000);
   };
+
+
+
 
   const npk = selectedCrop ? cropData[selectedCrop] : { nitrogen: 0, phosphorus: 0, potassium: 0 };
 
