@@ -639,9 +639,8 @@ const handlePrint = () => {
     }
 
     const isMarathi = language === "mr";
-    const page1ExtraMargin = isMarathi ? 'margin-bottom: 5px;' : '';
-    const soilTableFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
-    const recommendationsFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+    const hasSoilAnalysis = useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium;
+    const totalFertilizers = straightFertilizers.length + complexFertilizers.length;
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -651,54 +650,56 @@ const handlePrint = () => {
           <style>
             @page {
               size: A4;
-              margin: 1cm;
+              margin: 0.7cm;
             }
             body {
               font-family: Arial, sans-serif;
-              font-size: 12px; /* ADDED: Match Soil Report body font size */
+              font-size: 11px;
               margin: 0;
               padding: 0;
               position: relative;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
               color-adjust: exact !important;
+              line-height: 1.3;
             }
             .print-container {
               width: 100%;
-              padding: 10px;
+              padding: 8px;
             }
             .print-section {
-              margin-bottom: 15px;
-              ${page1ExtraMargin}
+              margin-bottom: 12px;
             }
-            .page-break {
+            /* Smart page break classes */
+            .page-break-before {
               page-break-before: always;
             }
-            .no-break {
-              page-break-inside: avoid;
+            .page-break-after {
+              page-break-after: always;
             }
             .avoid-break {
               page-break-inside: avoid;
             }
-            .force-break {
-              page-break-before: always;
+            .allow-break {
+              page-break-inside: auto;
             }
             .print-section h3 {
               background-color: #3498db !important;
               color: white !important;
-              padding: 6px 10px;
-              font-size: 14px; /* Match Soil Report section headers */
-              margin: 0 0 8px 0;
-              border-radius: 4px;
+              padding: 5px 8px;
+              font-size: 12px;
+              margin: 0 0 6px 0;
+              border-radius: 3px;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+              page-break-after: avoid;
             }
             .print-table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 10px;
-              ${soilTableFontSize}
-              page-break-inside: avoid;
+              margin-bottom: 8px;
+              font-size: 10px;
+              page-break-inside: auto;
             }
             .print-table th, .print-table td {
               border: 1px solid #ddd;
@@ -711,17 +712,19 @@ const handlePrint = () => {
               font-weight: bold;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+              font-size: 10px;
             }
             .print-footer {
               text-align: center;
-              margin-top: 15px;
+              margin-top: 12px;
               font-style: italic;
               color: #7f8c8d;
-              font-size: 11px; /* Match Soil Report footer */
+              font-size: 10px;
+              page-break-before: avoid;
             }
             .two-columns {
               display: flex;
-              gap: 15px;
+              gap: 12px;
               page-break-inside: avoid;
             }
             .column {
@@ -730,11 +733,12 @@ const handlePrint = () => {
             .compact-address-container {
               font-family: Arial, sans-serif;
               width: 100%;
-              padding: 6px 0;
+              padding: 5px 0;
               border-top: 1px solid #000;
               border-bottom: 1px solid #000;
               margin: 10px 0;
               page-break-inside: avoid;
+              font-size: 9px;
             }
             .address-row {
               display: flex;
@@ -744,85 +748,86 @@ const handlePrint = () => {
             }
             .address-block {
               flex: 1;
-              min-width: 150px;
-              font-size: 10px; /* Match Soil Report address block */
+              min-width: 130px;
             }
             .address-header {
               display: flex;
               align-items: center;
-              margin-bottom: 3px;
+              margin-bottom: 2px;
             }
             .address-icon {
-              width: 12px;
-              height: 12px;
-              margin-right: 4px;
+              width: 10px;
+              height: 10px;
+              margin-right: 3px;
               flex-shrink: 0;
             }
             .address-title {
-              font-size: 10px; /* Match Soil Report address title */
+              font-size: 9px;
               font-weight: bold;
               margin: 0;
               color: #000;
             }
             .address-text {
-              font-size: 9px; /* Match Soil Report address text */
+              font-size: 8px;
               margin: 0;
               line-height: 1.3;
             }
             .separator {
               color: #999;
-              font-size: 10px; /* Match Soil Report separator */
+              font-size: 9px;
               align-self: center;
               padding: 0 3px;
             }
             .contact-line {
               display: flex;
               align-items: center;
-              margin-bottom: 2px;
+              margin-bottom: 1px;
             }
             .mini-icon {
-              width: 8px;
-              height: 8px;
-              margin-right: 3px;
+              width: 7px;
+              height: 7px;
+              margin-right: 2px;
               flex-shrink: 0;
             }
             .header-container {
               display: flex;
               justify-content: space-between;
-              margin: 15px 0;
+              margin: 12px 0;
               page-break-inside: avoid;
+              page-break-before: avoid;
             }
             .lab-header-container {
               text-align: left;
               flex: 1;
             }
             .lab-header h2 {
-              font-size: 0.8rem; /* Match Soil Report lab header */
+              font-size: 0.75rem;
               color: #000;
-              margin-top: 30px;
-              margin-bottom: 10px;
+              margin-top: 25px;
+              margin-bottom: 8px;
               font-weight: bold;
             }
             .lab-notes {
-              font-size: 0.75rem; /* Match Soil Report lab notes */
+              font-size: 0.7rem;
               color: #333;
-              margin-top: 8px;
+              margin-top: 6px;
             }
             .note-title {
               font-weight: bold;
-              margin-bottom: 5px;
+              margin-bottom: 3px;
             }
             .note-items {
               list-style-type: none;
               padding-left: 0;
               margin-top: 0;
               margin-bottom: 0;
+              font-size: 0.65rem;
             }
             .note-items li {
               position: relative;
-              padding-left: 12px;
-              margin-bottom: 3px;
-              line-height: 1.4;
+              padding-left: 10px;
+              margin-bottom: 2px;
+              line-height: 1.3;
             }
             .note-items li:before {
               content: "-";
@@ -836,38 +841,31 @@ const handlePrint = () => {
             .authorization-text {
               display: inline-block;
               text-align: left;
-              font-size: 0.8rem; /* Match Soil Report authorization */
+              font-size: 0.75rem;
               color: #000;
-              margin-top: 30px;
-              margin-bottom: 10px;
+              margin-top: 25px;
+              margin-bottom: 8px;
             }
             .top-slogan-header {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              margin: 8px 0 20px;
-              padding: 0 15px;
+              margin: 8px 0 18px;
+              padding: 0 12px;
               page-break-inside: avoid;
+              page-break-before: avoid;
             }
             .slogan-text {
               flex: 1;
               text-align: left;
             }
             .main-slogan {
-              font-size: 12px; /* Match Soil Report slogan */
+              font-size: 12px;
               font-weight: bold;
               color: #000;
             }
-            .center-icon {
-              flex: 1;
-              text-align: center;
-            }
-            .right-icon {
-              flex: 1;
-              text-align: right;
-            }
             .logo-icon {
-              height: 50px;
+              height: 45px;
               object-fit: contain;
             }
             .logo-container {
@@ -876,15 +874,17 @@ const handlePrint = () => {
               align-items: center;
               width: 100%;
               page-break-inside: avoid;
+              page-break-before: avoid;
+              margin-bottom: 6px;
             }
             .report-title {
-              font-size: 18px; /* Match Soil Report title */
+              font-size: 17px;
               font-weight: bold;
-              margin-bottom: 8px;
+              margin-bottom: 6px;
             }
             .report-subtitle {
-              font-size: 12px; /* Match Soil Report subtitle */
-              margin-bottom: 15px;
+              font-size: 11px;
+              margin-bottom: 12px;
             }
             * {
               -webkit-print-color-adjust: exact !important;
@@ -895,47 +895,88 @@ const handlePrint = () => {
               line-height: 1.3;
             }
             .compact-recommendations {
-              ${recommendationsFontSize}
+              font-size: 10px;
               line-height: 1.3;
             }
             .fertilizer-type-title {
-              font-size: 14px; /* Match section header size */
+              font-size: 11px;
               font-weight: bold;
-              margin: 15px 0 8px 0;
+              margin: 12px 0 6px;
               color: #2c3e50;
-              padding-left: 5px;
-              border-left: 4px solid #3498db;
+              padding-left: 4px;
+              border-left: 3px solid #3498db;
+              page-break-after: avoid;
             }
             .supplement-row {
               background-color: #f8f9fa;
             }
             .supplement-cell {
-              padding-left: 30px !important;
+              padding-left: 20px !important;
               font-style: italic;
             }
-            
-            /* Additional styles to match Soil Report exactly */
             .soil-results {
               max-height: none;
               overflow: visible;
+              page-break-inside: auto;
+            }
+            .urea-note-container {
+              width: 100%;
+              padding: 0.6rem;
+              background-color: white;
+              border-radius: 0.6rem;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+              border: 1px solid #E5E7EB;
+              margin: 12px 0;
+              font-size: 10px;
               page-break-inside: avoid;
             }
             
-            /* Urea note styling to match */
-            .urea-note-container {
-              width: 100%;
-              padding: 1rem;
-              background-color: white;
-              border-radius: 1rem;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-              border: 1px solid #E5E7EB;
-              margin: 15px 0;
-              font-size: 11px; /* Match footer font size */
+            /* Smart content grouping for page breaks */
+            .content-group {
+              page-break-inside: avoid;
+            }
+            .main-content {
+              page-break-inside: auto;
             }
             
-            /* Ensure all text elements have consistent sizing */
-            p, div, span, td {
-              font-size: inherit;
+            /* Print-specific optimizations */
+            @media print {
+              body {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+              }
+              
+              /* Allow tables to break across pages */
+              table {
+                page-break-inside: auto;
+              }
+              tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+              }
+              thead {
+                display: table-header-group;
+              }
+              tfoot {
+                display: table-footer-group;
+              }
+              
+              /* Smart section breaks */
+              .print-section {
+                page-break-inside: auto;
+                page-break-after: auto;
+              }
+              
+              /* Prevent small sections from being orphaned */
+              h3, h4 {
+                page-break-after: avoid;
+              }
+              
+              /* Ensure footer stays together */
+              .print-footer {
+                page-break-before: avoid;
+              }
             }
           </style>
         </head>
@@ -944,18 +985,18 @@ const handlePrint = () => {
             <!-- Header with Logos -->
             <div class="logo-container">
               <div>
-                <img src="logo_com.png" alt="Left Logo" style="height: 120px;" />
+                <img src="logo_com.png" alt="Left Logo" style="height: 90px;" />
               </div>
-              <div style="display: flex; gap: 15px;">
-                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" />
-                <img src="msme.png" alt="Right Logo 2" style="height: 70px;" />
+              <div style="display: flex; gap: 10px;">
+                <img src="startup.png" alt="Right Logo 2" style="height: 55px;" />
+                <img src="msme.png" alt="Right Logo 2" style="height: 45px;" />
               </div>
             </div>
 
             <hr style="width: 100%; margin-top:3px; border: 1px solid #3498db;">
 
-            <div style="margin-top:0.5px;">
-              <div style="margin-top:2px;">
+            <div style="margin-top:0px;">
+              <div style="margin-top:1px;">
                 <div style="text-align: center; margin-top: 0px;">
                   <div class="report-title">${language === 'en' ? '🌱 Fertilizer Recommendation Report' : '🌱 खत शिफारस अहवाल'}</div>
                   <div class="report-subtitle">${new Date().toLocaleDateString()}</div>
@@ -999,7 +1040,7 @@ const handlePrint = () => {
 
               <!-- Soil Analysis Results -->
               ${useSoilAnalysis ? `
-              <div class="print-section avoid-break">
+              <div class="print-section allow-break">
                 <h3>${t.soilAnalysisTitle}</h3>
                 <table class="print-table">
                   <thead>
@@ -1027,7 +1068,7 @@ const handlePrint = () => {
               ` : ''}
 
               <!-- Nutrient Requirements -->
-              <div class="print-section avoid-break">
+              <div class="print-section allow-break">
                 <h3>${t.nutrientRequirements}</h3>
                 <table class="print-table">
                   <thead>
@@ -1054,7 +1095,7 @@ const handlePrint = () => {
               </div>
 
               <!-- Fertilizer Recommendations -->
-              <div class="print-section avoid-break">
+              <div class="print-section allow-break">
                 <h3>${t.fertilizerRecommendations}</h3>
                 
                 ${straightFertilizers.length > 0 ? `
@@ -1106,19 +1147,19 @@ const handlePrint = () => {
 
               <!-- Soil Analysis Recommendations -->
               ${useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium ? `
-              <div class="print-section avoid-break">
+              <div class="print-section allow-break">
                 <h3>${t.soilAnalysisRecommendations}</h3>
-                <div style="margin-bottom: 10px; font-size: 11px;">
+                <div style="margin-bottom: 8px; font-size: 10px;">
                   <strong>${t.nitrogen.split(" (")[0]}: ${soilAnalysis.nitrogen} kg/ha</strong><br>
                   ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).level} (${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).range})<br>
                   ${language === 'en' ? getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendation : getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendationMarathi}
                 </div>
-                <div style="margin-bottom:10px; font-size: 11px;">
+                <div style="margin-bottom:8px; font-size: 10px;">
                   <strong>${t.phosphorus.split(" (")[0]}: ${soilAnalysis.phosphorus} kg/ha</strong><br>
                   ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).level} (${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).range})<br>
                   ${language === 'en' ? getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendation : getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendationMarathi}
                 </div>
-                <div style="margin-bottom: 10px; font-size: 11px;">
+                <div style="margin-bottom: 8px; font-size: 10px;">
                   <strong>${t.potassium.split(" (")[0]}: ${soilAnalysis.potassium} kg/ha</strong><br>
                   ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("potassium", soilAnalysis.potassium).level} (${getNutrientLevel("potassium", soilAnalysis.potassium).range})<br>
                   ${language === 'en' ? getNutrientLevel("potassium", soilAnalysis.potassium).recommendation : getNutrientLevel("potassium", soilAnalysis.potassium).recommendationMarathi}
@@ -1127,10 +1168,10 @@ const handlePrint = () => {
               ` : ''}
 
               <!-- Urea Note -->
-              <div class="urea-note-container">
-                <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
-                  <span style="color: #EF4444; font-size: 1.125rem;">📌</span>
-                  <p style="color: #374151; margin: 0;">
+              <div class="urea-note-container avoid-break">
+                <div style="display: flex; align-items: flex-start; gap: 0.4rem;">
+                  <span style="color: #EF4444; font-size: 0.9rem;">📌</span>
+                  <p style="color: #374151; margin: 0; font-size: 10px;">
                     <span style="color: #1D4ED8; font-weight: 600;">
                       <strong> ${language === "en" ? "Note:" : "टीप:"} </strong>
                     </span> 
@@ -1139,10 +1180,13 @@ const handlePrint = () => {
                 </div>
               </div>
 
-              <hr style="margin: 20px 0; border: 1px solid #000;">
+              <hr style="margin: 15px 0; border: 1px solid #000;">
+
+              <!-- Smart Page Break Point - Only add if content is long -->
+              ${(hasSoilAnalysis || totalFertilizers > 4) ? '<div style="page-break-before: always;"></div>' : ''}
 
               <!-- Secondary Micronutrients -->
-              <div class="print-section avoid-break">
+              <div class="print-section allow-break">
                 <h3>${t.secondaryMicronutrientRecommendations}</h3>
                 <table class="print-table">
                   <thead>
@@ -1165,7 +1209,7 @@ const handlePrint = () => {
               </div>
               
               <!-- Micronutrients -->
-              <div class="print-section avoid-break">
+              <div class="print-section allow-break">
                 <h3>${t.micronutrientRecommendations}</h3>
                 <table class="print-table">
                   <thead>
@@ -1187,7 +1231,7 @@ const handlePrint = () => {
                 </table>
               </div>
               
-              <div class="print-footer">
+              <div class="print-footer avoid-break">
                 <p>${t.generatedBy} ${new Date().toLocaleString()}</p>
                 <p>${t.healthySoil}</p>
               </div>
@@ -1217,7 +1261,7 @@ const handlePrint = () => {
 
               <div class="authorization-container">
                 <div class="signature-image">
-                  <img src="signature.png" alt="Digital Signature" style="height: 80px;" />
+                  <img src="signature.png" alt="Digital Signature" style="height: 65px;" />
                 </div>
                 <div class="authorization-text">
                   ${t.authorizedBy}<br>
