@@ -1,13 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
+  BarChart, Bar, XAxis,YAxis, Tooltip,ResponsiveContainer, Cell,
 } from "recharts";
 import html2canvas from "html2canvas";
 
@@ -672,6 +666,7 @@ const handlePrint = async () => {
               <div style="display: flex; gap: 15px;"> <!-- Reduced gap -->
                 <img src="startup.png" alt="Right Logo 2" style="height: 80px;" /> <!-- Smaller logo -->
                 <img src="msme.png" alt="Right Logo 2" style="height: 70px;" /> <!-- Smaller logo -->
+                <img src="Krushimitra Logo.jpg" alt="Right Logo 2" style="height: 70px;" /> <!-- Smaller logo -->
                 
               </div>
             </div>

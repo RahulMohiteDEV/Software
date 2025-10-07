@@ -2106,20 +2106,17 @@ const handlePrint = () => {
           </div>
           <div className="flex items-center ml-10 justify-between mt-4 sm:mt-6 space-x-4">
             <p className="text-sm sm:text-lg font-semibold">{t.healthySoil}</p>
-
             <img
               src="/mati.png"
               alt="Soil Icon"
               className="w-16 mr-5 mb-5 sm:w-20 h-16 sm:h-20"
             />
-
             <img
               src="/Soil.png"
               alt="Soil Icon"
               className="w-16 mr-5 sm:w-20 h-16 sm:h-20"
             />
           </div>
-
         </div>
       </div>
     </div>
