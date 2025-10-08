@@ -666,11 +666,8 @@ const handlePrint = async () => {
               <div style="display: flex; gap: 15px;"> <!-- Reduced gap -->
                 <img src="startup.png" alt="Right Logo 2" style="height: 80px;" /> <!-- Smaller logo -->
                 <img src="msme.png" alt="Right Logo 2" style="height: 70px;" /> <!-- Smaller logo -->
-                <img src="Krushimitra Logo.jpg" alt="Right Logo 2" style="height: 70px;" /> <!-- Smaller logo -->
-                
               </div>
             </div>
-
             <hr style="width: 100%; margin-top:3px; border: 1px solid #3498db;">
 
             <div style="margin-top:0.5px;">
@@ -949,8 +946,6 @@ const handlePrint = async () => {
             <div class="print-footer">
               <p>${getPrintLabel('page2Footer')}</p>
             </div><br>
-            
-            
           </div>
         </body>
       </html>
