@@ -230,6 +230,11 @@ const translations = {
     contactInfo: "Contact No. & Email Id",
     website: "Website",
     ureaNote: " Urea should be applied in three stages: 50% as a basal dose at sowing, 25% as the first top dressing, and 25% as the second top dressing.",
+    deficitCalculation: "Deficit Calculation",
+    cropRequirement: "Crop Requirement",
+    soilAvailable: "Soil Available",
+    deficit: "Deficit",
+    formula: "Fertilizer Dose = Deficit × 100 / Nutrient % in fertilizer",
   },
   mr: {
     title: "स्मार्ट खत कॅल्क्युलेटर",
@@ -283,6 +288,11 @@ const translations = {
     website: "वेबसाइट",
     healthySoil: "निरोगी माती निरोगी जीवनासाठी",
     ureaNote: " युरिया तीन टप्प्यांमध्ये टाकावा: ५०% पेरणीवेळी बेसल डोस म्हणून, २५% पहिला टॉप ड्रेसिंग म्हणून, आणि २५% दुसरा टॉप ड्रेसिंग म्हणून.",
+    deficitCalculation: "तूट गणना",
+    cropRequirement: "पिकाची गरज",
+    soilAvailable: "मातीत उपलब्ध",
+    deficit: "तूट",
+    formula: "खत डोस = तूट × 100 / खतातील पोषक %",
   }
 };
 
@@ -339,7 +349,7 @@ const getNutrientLevel = (nutrient, value) => {
 };
 
 const FertilizerCalculator = () => {
-  const [selectedCrop, setSelectedCrop] = useState("onion");
+  const [selectedCrop, setSelectedCrop] = useState("Strawberry");
   const [selectedSoil, setSelectedSoil] = useState("Red Soil");
   const [totalArea, setTotalArea] = useState(1);
   const [selectedFertilizers, setSelectedFertilizers] = useState({
@@ -420,14 +430,34 @@ const FertilizerCalculator = () => {
     setUseSoilAnalysis(!useSoilAnalysis);
   };
 
+  // Calculate deficit based on soil analysis using the formula: Deficit = Crop requirement - Soil available
+  const calculateDeficit = () => {
+    const npk = cropData[selectedCrop] || { nitrogen: 0, phosphorus: 0, potassium: 0 };
+    
+    if (!useSoilAnalysis || !soilAnalysis.nitrogen || !soilAnalysis.phosphorus || !soilAnalysis.potassium) {
+      return {
+        nitrogen: npk.nitrogen,
+        phosphorus: npk.phosphorus,
+        potassium: npk.potassium
+      };
+    }
+
+    return {
+      nitrogen: Math.max(0, npk.nitrogen - soilAnalysis.nitrogen),
+      phosphorus: Math.max(0, npk.phosphorus - soilAnalysis.phosphorus),
+      potassium: Math.max(0, npk.potassium - soilAnalysis.potassium)
+    };
+  };
+
+  // Original calculation for straight and complex fertilizers
   const calculateFertilizer = (nutrientRequired, fertilizerContent) => {
     return ((nutrientRequired * totalArea * 100) / fertilizerContent).toFixed(2);
   };
 
   const calculateUreaAndDAP = (nitrogenReq, phosphorusReq) => {
-    const dapForP = (phosphorusReq * 100) / fertilizers.dap.p;
+    const dapForP = (phosphorusReq * totalArea * 100) / fertilizers.dap.p;
     const nitrogenFromDAP = (dapForP * fertilizers.dap.n) / 100;
-    const remainingN = nitrogenReq - nitrogenFromDAP;
+    const remainingN = (nitrogenReq * totalArea) - nitrogenFromDAP;
     const ureaForN = (remainingN * 100) / fertilizers.urea.n;
     return {
       urea: ureaForN.toFixed(2),
@@ -501,6 +531,62 @@ const FertilizerCalculator = () => {
         K: K_from_base.toFixed(2)
       }
     };
+  };
+
+  // CORRECTED: New calculation for water soluble fertilizers using deficit formula
+  const calculateWaterSolubleFertilizer = (fertilizerId, deficit) => {
+    const fertilizer = fertilizers[fertilizerId];
+    
+    // Calculate total deficit for the area
+    const totalDeficitN = deficit.nitrogen * totalArea;
+    const totalDeficitP = deficit.phosphorus * totalArea;
+    const totalDeficitK = deficit.potassium * totalArea;
+    
+    // For balanced fertilizers like 19-19-19, calculate based on the limiting nutrient
+    if (fertilizerId === 'npk191919') {
+      const nReq = (totalDeficitN * 100) / fertilizer.n;
+      const pReq = (totalDeficitP * 100) / fertilizer.p;
+      const kReq = (totalDeficitK * 100) / fertilizer.k;
+      return Math.max(nReq, pReq, kReq).toFixed(2);
+    }
+    
+    if (fertilizerId === 'npk134013') {
+      const nReq = (totalDeficitN * 100) / fertilizer.n;
+      const pReq = (totalDeficitP * 100) / fertilizer.p;
+      const kReq = (totalDeficitK * 100) / fertilizer.k;
+      return Math.max(nReq, pReq, kReq).toFixed(2);
+    }
+    
+    // For MAP (12-61-00) - primarily for Phosphorus
+    if (fertilizerId === 'map') {
+      return ((totalDeficitP * 100) / fertilizer.p).toFixed(2);
+    }
+    
+    // For MKP (00-52-34) - primarily for Phosphorus and Potassium
+    if (fertilizerId === 'mkp') {
+      const pReq = (totalDeficitP * 100) / fertilizer.p;
+      const kReq = (totalDeficitK * 100) / fertilizer.k;
+      return Math.max(pReq, kReq).toFixed(2);
+    }
+    
+    // For MOP Water Soluble (00-00-50) - primarily for Potassium
+    if (fertilizerId === 'mop_ws') {
+      return ((totalDeficitK * 100) / fertilizer.k).toFixed(2);
+    }
+    
+    // For PN (13-00-45) - primarily for Nitrogen and Potassium
+    if (fertilizerId === 'pn') {
+      const nReq = (totalDeficitN * 100) / fertilizer.n;
+      const kReq = (totalDeficitK * 100) / fertilizer.k;
+      return Math.max(nReq, kReq).toFixed(2);
+    }
+    
+    // For NPKS (00-00-23-08) - primarily for Potassium
+    if (fertilizerId === 'npks00002308') {
+      return ((totalDeficitK * 100) / fertilizer.k).toFixed(2);
+    }
+    
+    return "0.00";
   };
 
   const getRecommendations = () => {
@@ -698,82 +784,60 @@ const FertilizerCalculator = () => {
       });
     }
 
-    // Water Soluble Fertilizers
+    // Water Soluble Fertilizers - using deficit calculation
+    const deficit = calculateDeficit();
+    
     if (selectedFertilizers.map) {
-      const npkData = calculateNPK('map');
       waterSolubleFertilizers.push({
         name: getFertilizerName('map'),
-        amount: npkData.baseFertilizer,
-        supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+        amount: calculateWaterSolubleFertilizer('map', deficit)
       });
     }
 
     if (selectedFertilizers.mkp) {
-      const npkData = calculateNPK('mkp');
       waterSolubleFertilizers.push({
         name: getFertilizerName('mkp'),
-        amount: npkData.baseFertilizer,
-        supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea }
-        ]
+        amount: calculateWaterSolubleFertilizer('mkp', deficit)
       });
     }
 
     if (selectedFertilizers.mop_ws) {
-      const npkData = calculateNPK('mop_ws');
       waterSolubleFertilizers.push({
         name: getFertilizerName('mop_ws'),
-        amount: npkData.baseFertilizer,
-        supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('dap'), amount: calculateFertilizer(npk.phosphorus, fertilizers.dap.p) }
-        ]
+        amount: calculateWaterSolubleFertilizer('mop_ws', deficit)
       });
     }
 
     if (selectedFertilizers.pn) {
-      const npkData = calculateNPK('pn');
       waterSolubleFertilizers.push({
         name: getFertilizerName('pn'),
-        amount: npkData.baseFertilizer,
-        supplements: [
-          { name: getFertilizerName('ssp'), amount: calculateFertilizer(npk.phosphorus, fertilizers.ssp.p) }
-        ]
+        amount: calculateWaterSolubleFertilizer('pn', deficit)
       });
     }
 
     if (selectedFertilizers.npk191919) {
-      const npkData = calculateNPK('191919');
       waterSolubleFertilizers.push({
         name: getFertilizerName('npk191919'),
-        amount: npkData.baseFertilizer
+        amount: calculateWaterSolubleFertilizer('npk191919', deficit)
       });
     }
 
     if (selectedFertilizers.npk134013) {
-      const npkData = calculateNPK('134013');
       waterSolubleFertilizers.push({
         name: getFertilizerName('npk134013'),
-        amount: npkData.baseFertilizer
+        amount: calculateWaterSolubleFertilizer('npk134013', deficit)
       });
     }
 
     if (selectedFertilizers.npks00002308) {
-      const npkData = calculateNPK('npks00002308');
       waterSolubleFertilizers.push({
         name: getFertilizerName('npks00002308'),
-        amount: npkData.baseFertilizer,
-        supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('dap'), amount: calculateFertilizer(npk.phosphorus, fertilizers.dap.p) }
-        ]
+        amount: calculateWaterSolubleFertilizer('npks00002308', deficit)
       });
     }
 
     const isMarathi = language === "mr";
+    const deficitValues = calculateDeficit();
 
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -1056,6 +1120,29 @@ const FertilizerCalculator = () => {
               font-size: 10px;
               page-break-inside: avoid;
             }
+            .formula-box {
+              background-color: #f8f9fa;
+              border: 1px solid #dee2e6;
+              border-radius: 5px;
+              padding: 10px;
+              margin: 10px 0;
+              font-family: monospace;
+              text-align: center;
+            }
+            .deficit-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 10px 0;
+            }
+            .deficit-table th, .deficit-table td {
+              border: 1px solid #ddd;
+              padding: 6px;
+              text-align: center;
+            }
+            .deficit-table th {
+              background-color: #e9ecef;
+              font-weight: bold;
+            }
             
             @media print {
               body {
@@ -1207,6 +1294,43 @@ const FertilizerCalculator = () => {
               </div>
               ` : ''}
 
+              <!-- Deficit Calculation for Water Soluble Fertilizers -->
+              ${waterSolubleFertilizers.length > 0 ? `
+              <div class="print-section allow-break">
+                <h3>${t.deficitCalculation}</h3>
+                <table class="deficit-table">
+                  <thead>
+                    <tr>
+                      <th>${t.nutrient}</th>
+                      <th>${t.cropRequirement} (kg/ha)</th>
+                      <th>${t.soilAvailable} (kg/ha)</th>
+                      <th>${t.deficit} (kg/ha)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>${t.nitrogen.split(" (")[0]} (N)</td>
+                      <td>${npk.nitrogen}</td>
+                      <td>${useSoilAnalysis && soilAnalysis.nitrogen ? soilAnalysis.nitrogen : 0}</td>
+                      <td>${deficitValues.nitrogen.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td>${t.phosphorus.split(" (")[0]} (P₂O₅)</td>
+                      <td>${npk.phosphorus}</td>
+                      <td>${useSoilAnalysis && soilAnalysis.phosphorus ? soilAnalysis.phosphorus : 0}</td>
+                      <td>${deficitValues.phosphorus.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                      <td>${t.potassium.split(" (")[0]} (K₂O)</td>
+                      <td>${npk.potassium}</td>
+                      <td>${useSoilAnalysis && soilAnalysis.potassium ? soilAnalysis.potassium : 0}</td>
+                      <td>${deficitValues.potassium.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              ` : ''}
+
               <!-- Urea Note -->
               <div class="urea-note-container avoid-break">
                 <div style="display: flex; align-items: flex-start; gap: 0.4rem;">
@@ -1218,7 +1342,7 @@ const FertilizerCalculator = () => {
                     ${translations[language].ureaNote}
                   </p>
                 </div>
-              </div>
+              </div>  
 
               <!-- Nutrient Requirements -->
               <div class="print-section allow-break">
@@ -1303,21 +1427,15 @@ const FertilizerCalculator = () => {
                   <thead>
                     <tr>
                       <th>${t.fertilizer}</th>
-                      <th>${t.required} (kg)</th>
+                      <th>${t.required} (kg/ha)</th>
                     </tr>
                   </thead>
                   <tbody>
                     ${waterSolubleFertilizers.map(fertilizer => `
                     <tr>
-                      <td><strong>${fertilizer.name}</strong></td>
-                      <td><strong>${fertilizer.amount}</strong></td>
+                      <td>${fertilizer.name}</td>
+                      <td>${fertilizer.amount}</td>
                     </tr>
-                    ${fertilizer.supplements ? fertilizer.supplements.map(supplement => `
-                    <tr class="supplement-row">
-                      <td class="supplement-cell">+ ${supplement.name}</td>
-                      <td>${supplement.amount}</td>
-                    </tr>
-                    `).join('') : ''}
                     `).join('')}
                   </tbody>
                 </table>
@@ -1399,7 +1517,7 @@ const FertilizerCalculator = () => {
                   </div>
                 </div>
               </div>
-
+              
               <div class="authorization-container">
                 <div class="signature-image">
                   <img src="signature.png" alt="Digital Signature" style="height: 80px;" />
@@ -1500,6 +1618,7 @@ const FertilizerCalculator = () => {
   };
 
   const npk = selectedCrop ? cropData[selectedCrop] : { nitrogen: 0, phosphorus: 0, potassium: 0 };
+  const deficit = calculateDeficit();
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-green-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8 ml-30">
@@ -1803,6 +1922,90 @@ const FertilizerCalculator = () => {
 
             {activeTab === 'macronutrients' ? (
               <>
+                {/* Deficit Calculation for Water Soluble Fertilizers */}
+                {(selectedFertilizers.map || selectedFertilizers.mkp || selectedFertilizers.mop_ws || selectedFertilizers.pn || selectedFertilizers.npk191919 || selectedFertilizers.npk134013 || selectedFertilizers.npks00002308) && (
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                      {t.deficitCalculation}
+                    </h3>
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t.nutrient}
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t.cropRequirement} (kg/ha)
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t.soilAvailable} (kg/ha)
+                            </th>
+                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {t.deficit} (kg/ha)
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                              {t.nitrogen.split(" (")[0]} (N)
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {npk.nitrogen}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {useSoilAnalysis && soilAnalysis.nitrogen ? soilAnalysis.nitrogen : 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
+                              {deficit.nitrogen.toFixed(2)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                              {t.phosphorus.split(" (")[0]} (P₂O₅)
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {npk.phosphorus}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {useSoilAnalysis && soilAnalysis.phosphorus ? soilAnalysis.phosphorus : 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
+                              {deficit.phosphorus.toFixed(2)}
+                            </td>
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">
+                              {t.potassium.split(" (")[0]} (K₂O)
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {npk.potassium}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {useSoilAnalysis && soilAnalysis.potassium ? soilAnalysis.potassium : 0}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
+                              {deficit.potassium.toFixed(2)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Formula Display */}
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="text-md font-semibold text-blue-800 mb-2">{t.formula}</h4>
+                      <div className="text-sm text-gray-700 font-mono bg-white p-3 rounded border">
+                        <strong>Fertilizer Dose (kg/ha) = Deficit (kg/ha) × 100 ÷ Nutrient % in fertilizer</strong>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1976,103 +2179,47 @@ const FertilizerCalculator = () => {
 
                         {/* Water Soluble Fertilizers */}
                         {selectedFertilizers.map && (
-                          <>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">
-                                {language === 'en' ? fertilizers.map.name : fertilizers.map.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('map').baseFertilizer}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('map').urea}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">
-                                {language === 'en' ? fertilizers.mop.name : fertilizers.mop.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('map').mop}
-                              </td>
-                            </tr>
-                          </>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">
+                              {language === 'en' ? fertilizers.map.name : fertilizers.map.nameMarathi}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {calculateWaterSolubleFertilizer('map', deficit)}
+                            </td>
+                          </tr>
                         )}
 
                         {selectedFertilizers.mkp && (
-                          <>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
-                                {language === 'en' ? fertilizers.mkp.name : fertilizers.mkp.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('mkp').baseFertilizer}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('mkp').urea}
-                              </td>
-                            </tr>
-                          </>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
+                              {language === 'en' ? fertilizers.mkp.name : fertilizers.mkp.nameMarathi}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {calculateWaterSolubleFertilizer('mkp', deficit)}
+                            </td>
+                          </tr>
                         )}
 
                         {selectedFertilizers.mop_ws && (
-                          <>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-amber-600">
-                                {language === 'en' ? fertilizers.mop_ws.name : fertilizers.mop_ws.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('mop_ws').baseFertilizer}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('mop_ws').urea}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                {language === 'en' ? fertilizers.dap.name : fertilizers.dap.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateFertilizer(npk.phosphorus, fertilizers.dap.p)}
-                              </td>
-                            </tr>
-                          </>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-amber-600">
+                              {language === 'en' ? fertilizers.mop_ws.name : fertilizers.mop_ws.nameMarathi}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {calculateWaterSolubleFertilizer('mop_ws', deficit)}
+                            </td>
+                          </tr>
                         )}
 
                         {selectedFertilizers.pn && (
-                          <>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-600">
-                                {language === 'en' ? fertilizers.pn.name : fertilizers.pn.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('pn').baseFertilizer}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                {language === 'en' ? fertilizers.ssp.name : fertilizers.ssp.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateFertilizer(npk.phosphorus, fertilizers.ssp.p)}
-                              </td>
-                            </tr>
-                          </>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-600">
+                              {language === 'en' ? fertilizers.pn.name : fertilizers.pn.nameMarathi}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {calculateWaterSolubleFertilizer('pn', deficit)}
+                            </td>
+                          </tr>
                         )}
 
                         {selectedFertilizers.npk191919 && (
@@ -2081,7 +2228,7 @@ const FertilizerCalculator = () => {
                               {language === 'en' ? fertilizers.npk191919.name : fertilizers.npk191919.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateNPK('191919').baseFertilizer}
+                              {calculateWaterSolubleFertilizer('npk191919', deficit)}
                             </td>
                           </tr>
                         )}
@@ -2092,38 +2239,20 @@ const FertilizerCalculator = () => {
                               {language === 'en' ? fertilizers.npk134013.name : fertilizers.npk134013.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateNPK('134013').baseFertilizer}
+                              {calculateWaterSolubleFertilizer('npk134013', deficit)}
                             </td>
                           </tr>
                         )}
 
                         {selectedFertilizers.npks00002308 && (
-                          <>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-lime-600">
-                                {language === 'en' ? fertilizers.npks00002308.name : fertilizers.npks00002308.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('npks00002308').baseFertilizer}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('npks00002308').urea}
-                              </td>
-                            </tr>
-                            <tr>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                {language === 'en' ? fertilizers.dap.name : fertilizers.dap.nameMarathi}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateFertilizer(npk.phosphorus, fertilizers.dap.p)}
-                              </td>
-                            </tr>
-                          </>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-lime-600">
+                              {language === 'en' ? fertilizers.npks00002308.name : fertilizers.npks00002308.nameMarathi}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                              {calculateWaterSolubleFertilizer('npks00002308', deficit)}
+                            </td>
+                          </tr>
                         )}
 
                         {/* Add other existing complex fertilizers here... */}
