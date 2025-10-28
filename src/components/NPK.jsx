@@ -1293,7 +1293,7 @@ const FertilizerCalculator = () => {
                 </div>
               </div>
               ` : ''}
-
+              
               <!-- Deficit Calculation for Water Soluble Fertilizers -->
               ${waterSolubleFertilizers.length > 0 ? `
               <div class="print-section allow-break">
@@ -1331,18 +1331,7 @@ const FertilizerCalculator = () => {
               </div>
               ` : ''}
 
-              <!-- Urea Note -->
-              <div class="urea-note-container avoid-break">
-                <div style="display: flex; align-items: flex-start; gap: 0.4rem;">
-                  <span style="color: #EF4444; font-size: 0.9rem;">📌</span>
-                  <p style="color: #374151; margin: 0; font-size: 10px;">
-                    <span style="color: #1D4ED8; font-weight: 600;">
-                      <strong> ${language === "en" ? "Note:" : "टीप:"} </strong>
-                    </span> 
-                    ${translations[language].ureaNote}
-                  </p>
-                </div>
-              </div>  
+              
 
               <!-- Nutrient Requirements -->
               <div class="print-section allow-break">
@@ -1479,11 +1468,11 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${micronutrients.map(item => `
-                    <tr>
-                      <td>${item.nutrient}</td>
-                      <td>${item.range}</td>
-                      <td>${item.recommendation}</td>
+                    ${micronutrients.map(item =>`
+                    <tr> 
+                      <td>${item.nutrient}</td> 
+                      <td>${item.range}</td> 
+                      <td>${item.recommendation}</td> 
                     </tr>
                     `).join('')}
                   </tbody>
