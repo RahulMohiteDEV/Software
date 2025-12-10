@@ -44,7 +44,8 @@ const cropData = {
   Cow: { nitrogen: 25, phosphorus: 50, potassium: 0 },
   Safflower: { nitrogen: 50, phosphorus: 25, potassium: 25 },
   Brocoli: { nitrogen: 120, phosphorus: 60, potassium: 60 },
-  Strawberry: { nitrogen: 100, phosphorus: 60, potassium: 120 }
+  Strawberry: { nitrogen: 100, phosphorus: 60, potassium: 120 },
+  Pomegranate: { nitrogen: 110, phosphorus: 50, potassium: 110 }
 };
 
 // Marathi crop names mapping
@@ -93,6 +94,7 @@ const cropNamesMarathi = {
   Safflower: "करडई",
   Brocoli: "ब्रोकली ",
   Strawberry: "स्ट्रॉबेरी ",
+  Pomegranate:"डाळिंब",
 };
 
 const soilTypes = ["Red Soil", "Black Soil", "Medium Soil", "Silt"];
@@ -1374,7 +1376,7 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${straightFertilizers.map(fertilizer => `
+                    ${straightFertilizers.map(fertilizer =>`
                     <tr>
                       <td>${fertilizer.name}</td>
                       <td>${fertilizer.amount}</td>
@@ -1518,7 +1520,7 @@ const FertilizerCalculator = () => {
                 </div>
               </div>
             </div>
-
+                
             <div class="top-slogan-header avoid-break">
               <div class="slogan-text">
                 <div class="main-slogan">${t.healthySoil}</div>

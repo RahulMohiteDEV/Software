@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  BarChart, Bar, XAxis,YAxis, Tooltip,ResponsiveContainer, Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
 } from "recharts";
 import html2canvas from "html2canvas";
 
@@ -24,6 +24,9 @@ const SoilReport = () => {
       print: "🖨 Print Report",
       healthySoil: "Healthy Soils for a Healthy Life",
       language: "Language",
+      soilHealthIndex: "Soil Health Index",
+      soilHealthStatus: "Soil Health Status",
+      soilHealthScore: "Overall Soil Health Score",
       formLabels: {
         FarmerName: "Farmer Name",
         Aadhaar: "Aadhaar Number",
@@ -86,7 +89,9 @@ const SoilReport = () => {
         officeAddress: "Office Address",
         labAddress: "Lab Address",
         contactEmail: "Contact No. & Email Id",
-        website: "Website"
+        website: "Website",
+        soilHealthIndex: "Soil Health Index",
+        soilHealthStatus: "Soil Health Status"
       }
     },
     marathi: {
@@ -100,6 +105,9 @@ const SoilReport = () => {
       print: "🖨 अहवाल प्रिंट करा",
       healthySoil: "निरोगी माती निरोगी जीवनासाठी",
       language: "भाषा",
+      soilHealthIndex: "माती आरोग्य निर्देशांक",
+      soilHealthStatus: "माती आरोग्य स्थिती",
+      soilHealthScore: "एकूण माती आरोग्य गुण",
       formLabels: {
         FarmerName: "शेतकऱ्याचे नाव",
         Aadhaar: "आधार क्रमांक",
@@ -162,7 +170,9 @@ const SoilReport = () => {
         officeAddress: "कार्यालयाचा पत्ता",
         labAddress: "प्रयोगशाळेचा पत्ता",
         contactEmail: "संपर्क क्रमांक आणि ईमेल आयडी",
-        website: "वेबसाइट"
+        website: "वेबसाइट",
+        soilHealthIndex: "माती आरोग्य निर्देशांक",
+        soilHealthStatus: "माती आरोग्य स्थिती"
       }
     }
   };
@@ -188,36 +198,97 @@ const SoilReport = () => {
   const [formErrors, setFormErrors] = useState({});
 
   const [soilData, setSoilData] = useState([
-    { name: "pH", unit: "", value: "", min: 6.5, max: 7.5 },
-    { name: "EC", unit: "ds/m", value: "", min: 0, max: 1 },
-    { name: "Organic Carbon", unit: "%", value: "", min: 0.51, max: 0.75 },
-    { name: " Nitrogen", unit: "Kg/ha", value: "", min: 280, max: 560 },
-    { name: " Phosphorus", unit: "Kg/ha", value: "", min: 10, max: 25 },
-    { name: " Potassium", unit: "Kg/ha", value: "", min: 145, max: 337 },
-    { name: "Calcium", unit: "meq", value: "", min: 65, max: 80 },
-    { name: "Magnesium", unit: "meq", value: "", min: 10, max: 15 },
-    { name: "Sulfur", unit: "ppm", value: "", min: 10, max: 20 },
-    { name: "Sodium", unit: "ppm", value: "", min: 5, max: 15 },
-    { name: "Iron", unit: "ppm", value: "", min: 2.0, max: 5.0 },
-    { name: "Zinc", unit: "ppm", value: "", min: 1.0, max: 5.0 },
-    { name: "Manganese", unit: "ppm", value: "", min: 2.0, max: 5.0 },
-    { name: "Copper", unit: "ppm", value: "", min: 0.2, max: 5.0 },
-    { name: "Boron", unit: "ppm", value: "", min: 0.5, max: 1.0 },
-    { name: "Calcium Carbonate", unit: "%", value: "", min: 1.0, max: 15.00 },
-    { name: "WHC", unit: "%", value: "", min: 0, max: 100 },
-
+    { name: "pH", unit: "", value: "", min: 6.5, max: 7.5, weight: 15 },
+    { name: "EC", unit: "ds/m", value: "", min: 0, max: 1, weight: 5 },
+    { name: "Organic Carbon", unit: "%", value: "", min: 0.51, max: 0.75, weight: 20 },
+    { name: " Nitrogen", unit: "Kg/ha", value: "", min: 280, max: 560, weight: 15 },
+    { name: " Phosphorus", unit: "Kg/ha", value: "", min: 10, max: 25, weight: 10 },
+    { name: " Potassium", unit: "Kg/ha", value: "", min: 145, max: 337, weight: 10 },
+    { name: "Calcium", unit: "meq", value: "", min: 65, max: 80, weight: 5 },
+    { name: "Magnesium", unit: "meq", value: "", min: 10, max: 15, weight: 5 },
+    { name: "Sulfur", unit: "ppm", value: "", min: 10, max: 20, weight: 3 },
+    { name: "Sodium", unit: "ppm", value: "", min: 5, max: 15, weight: 2 },
+    { name: "Iron", unit: "ppm", value: "", min: 2.0, max: 5.0, weight: 2 },
+    { name: "Zinc", unit: "ppm", value: "", min: 1.0, max: 5.0, weight: 2 },
+    { name: "Manganese", unit: "ppm", value: "", min: 2.0, max: 5.0, weight: 2 },
+    { name: "Copper", unit: "ppm", value: "", min: 0.2, max: 5.0, weight: 2 },
+    { name: "Boron", unit: "ppm", value: "", min: 0.5, max: 1.0, weight: 2 },
+    { name: "Calcium Carbonate", unit: "%", value: "", min: 1.0, max: 15.00, weight: 0 },
+    { name: "WHC", unit: "%", value: "", min: 0, max: 100, weight: 0 },
   ]);
 
   const [showGraph, setShowGraph] = useState(false);
   const [error, setError] = useState("");
   const [isFarmerDataSubmitted, setIsFarmerDataSubmitted] = useState(false);
+  const [soilHealthIndex, setSoilHealthIndex] = useState(0);
+  const [soilHealthStatus, setSoilHealthStatus] = useState("");
+
+  // Calculate Soil Health Index
+  const calculateSoilHealthIndex = () => {
+    let totalScore = 0;
+    let totalWeight = 0;
+    let parametersCounted = 0;
+
+    soilData.forEach(item => {
+      if (item.value !== "" && item.weight > 0) {
+        const normalizedScore = calculateParameterScore(item.value, item.min, item.max);
+        totalScore += normalizedScore * item.weight;
+        totalWeight += item.weight;
+        parametersCounted++;
+      }
+    });
+
+    if (parametersCounted === 0) return 0;
+
+    const finalScore = (totalScore / totalWeight) * 100;
+    return Math.min(100, Math.max(0, finalScore));
+  };
+
+  // Calculate individual parameter score (0-1)
+  const calculateParameterScore = (value, min, max) => {
+    if (value === "") return 0;
+    
+    // For parameters where higher is better (most nutrients)
+    if (min > 0 && max > min) {
+      if (value < min) return value / min * 0.5; // 0-0.5 for below optimal
+      if (value > max) return 1 - ((value - max) / (max * 2)) * 0.5; // 0.5-1 for above optimal, with penalty for very high
+      return 0.5 + ((value - min) / (max - min)) * 0.5; // 0.5-1 for optimal range
+    }
+    
+    // For pH which has optimal range
+    if (min === 6.5 && max === 7.5) {
+      if (value >= min && value <= max) return 1;
+      if (value < min) return value / min;
+      if (value > max) return 1 - ((value - max) / 3); // Penalty for high pH
+    }
+    
+    return 0.5; // Default score
+  };
+
+  // Get Soil Health Status based on index
+  const getSoilHealthStatus = (index) => {
+    if (index >= 80) return language === "english" ? "Excellent" : "उत्कृष्ट";
+    if (index >= 70) return language === "english" ? "Good" : "चांगले";
+    if (index >= 60) return language === "english" ? "Fair" : "समाधानकारक";
+    if (index >= 50) return language === "english" ? "Poor" : "कमकुवत";
+    return language === "english" ? "Very Poor" : "अत्यंत कमकुवत";
+  };
+
+  // Get Status Color
+  const getStatusColor = (index) => {
+    if (index >= 80) return "#27ae60";
+    if (index >= 70) return "#2ecc71";
+    if (index >= 60) return "#f39c12";
+    if (index >= 50) return "#e67e22";
+    return "#e74c3c";
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setReportData({ ...reportData, [name]: value });
     setFormErrors({ ...formErrors, [name]: "" });
   };
- 
+
   const validateForm = () => {
     const errors = {};
     const { FarmerName, Aadhaar, MobileNo, Village, District, Taluka, SoilType, SoilSample, SampleDate, ReportDate, TotalArea, SurveyNumber, Pincode } = reportData;
@@ -268,6 +339,9 @@ const SoilReport = () => {
   const generateReport = () => {
     const isDataFilled = soilData.every((item) => item.value !== "");
     if (isDataFilled) {
+      const calculatedIndex = calculateSoilHealthIndex();
+      setSoilHealthIndex(calculatedIndex);
+      setSoilHealthStatus(getSoilHealthStatus(calculatedIndex));
       setShowGraph(true);
       setError("");
     } else {
@@ -296,30 +370,30 @@ const SoilReport = () => {
     return t.printLabels[key] || key;
   };
 
-const handlePrint = async () => {
-  try {
-    const chartElement = document.querySelector('.recharts-wrapper');
-    const canvas = await html2canvas(chartElement, {
-      scale: 2,
-      logging: false,
-      useCORS: true,
-    });
-    const chartImage = canvas.toDataURL("image/png");
+  const handlePrint = async () => {
+    try {
+      const chartElement = document.querySelector('.recharts-wrapper');
+      const canvas = await html2canvas(chartElement, {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+      });
+      const chartImage = canvas.toDataURL("image/png");
 
-    const farmerEntries = Object.entries(reportData);
-    const halfLength = Math.ceil(farmerEntries.length / 2);
-    const leftColumn = farmerEntries.slice(0, halfLength);
-    const rightColumn = farmerEntries.slice(halfLength);
+      const farmerEntries = Object.entries(reportData);
+      const halfLength = Math.ceil(farmerEntries.length / 2);
+      const leftColumn = farmerEntries.slice(0, halfLength);
+      const rightColumn = farmerEntries.slice(halfLength);
 
-    const printWindow = window.open('', '', 'width=1200,height=800');
+      const printWindow = window.open('', '', 'width=1200,height=800');
 
-    // Calculate if Marathi content needs more space
-    const isMarathi = language === "marathi";
-    const page1ExtraMargin = isMarathi ? 'margin-bottom: 5px;' : '';
-    const soilTableFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
-    const recommendationsFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+      // Calculate if Marathi content needs more space
+      const isMarathi = language === "marathi";
+      const page1ExtraMargin = isMarathi ? 'margin-bottom: 5px;' : '';
+      const soilTableFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+      const recommendationsFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
 
-    printWindow.document.write(`
+      printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -343,7 +417,7 @@ const handlePrint = async () => {
               padding: 10px;
             }
             .print-section {
-              margin-bottom: 15px; /* Reduced margin */
+              margin-bottom: 15px;
               ${page1ExtraMargin}
             }
             .page-break {
@@ -361,9 +435,9 @@ const handlePrint = async () => {
             .print-section h3 {
               background-color: #3498db !important;
               color: white !important;
-              padding: 6px 10px; /* Reduced padding */
-              font-size: 14px; /* Smaller font */
-              margin: 0 0 8px 0; /* Reduced margin */
+              padding: 6px 10px;
+              font-size: 14px;
+              margin: 0 0 8px 0;
               border-radius: 4px;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
@@ -371,13 +445,13 @@ const handlePrint = async () => {
             .print-table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 10px; /* Reduced margin */
+              margin-bottom: 10px;
               ${soilTableFontSize}
               page-break-inside: avoid;
             }
             .print-table th, .print-table td {
               border: 1px solid #ddd;
-              padding: 4px; /* Reduced padding */
+              padding: 4px;
               text-align: left;
             }
             .print-table th {
@@ -389,23 +463,23 @@ const handlePrint = async () => {
             }
             .print-graph {
               width: 100%;
-              height: 250px; /* Reduced height */
-              margin: 15px 0; /* Reduced margin */
+              height: 250px;
+              margin: 15px 0;
               page-break-inside: avoid;
             }
             .print-footer {
               text-align: center;
-              margin-top: 15px; /* Reduced margin */
+              margin-top: 15px;
               font-style: italic;
               color: #7f8c8d;
-              font-size: 11px; /* Smaller font */
+              font-size: 11px;
             }
             .optimal { color: #2ecc71 !important; }
             .low { color: #3498db !important; }
             .high { color: #e74c3c !important; }
             .two-columns {
               display: flex;
-              gap: 15px; /* Reduced gap */
+              gap: 15px;
               page-break-inside: avoid;
             }
             .column {
@@ -414,23 +488,23 @@ const handlePrint = async () => {
             .legend {
               display: flex;
               justify-content: center;
-              gap: 10px; /* Reduced gap */
-              margin: 8px 0; /* Reduced margin */
+              gap: 10px;
+              margin: 8px 0;
               page-break-inside: avoid;
             }
             .legend-item {
               display: flex;
               align-items: center;
-              font-size: 12px !important; /* Smaller font */
+              font-size: 12px !important;
               font-weight: bold !important;
               color: #000000 !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
             .legend-color {
-              width: 12px; /* Smaller */
-              height: 12px; /* Smaller */
-              margin-right: 4px; /* Reduced margin */
+              width: 12px;
+              height: 12px;
+              margin-right: 4px;
               border: 1px solid #ddd;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
@@ -443,10 +517,10 @@ const handlePrint = async () => {
             .compact-address-container {
               font-family: Arial, sans-serif;
               width: 100%;
-              padding: 6px 0; /* Reduced padding */
+              padding: 6px 0;
               border-top: 1px solid #000;
               border-bottom: 1px solid #000;
-              margin: 10px 0; /* Reduced margin */
+              margin: 10px 0;
               page-break-inside: avoid;
             }
             .address-row {
@@ -457,52 +531,52 @@ const handlePrint = async () => {
             }
             .address-block {
               flex: 1;
-              min-width: 150px; /* Smaller min-width */
-              font-size: 10px; /* Smaller font */
+              min-width: 150px;
+              font-size: 10px;
             }
             .address-header {
               display: flex;
               align-items: center;
-              margin-bottom: 3px; /* Reduced margin */
+              margin-bottom: 3px;
             }
             .address-icon {
-              width: 12px; /* Smaller */
-              height: 12px; /* Smaller */
-              margin-right: 4px; /* Reduced margin */
+              width: 12px;
+              height: 12px;
+              margin-right: 4px;
               flex-shrink: 0;
             }
             .address-title {
-              font-size: 10px; /* Smaller font */
+              font-size: 10px;
               font-weight: bold;
               margin: 0;
               color: #000;
             }
             .address-text {
-              font-size: 9px; /* Smaller font */
+              font-size: 9px;
               margin: 0;
-              line-height: 1.3; /* Tighter line height */
+              line-height: 1.3;
             }
             .separator {
               color: #999;
-              font-size: 10px; /* Smaller font */
+              font-size: 10px;
               align-self: center;
-              padding: 0 3px; /* Reduced padding */
+              padding: 0 3px;
             }
             .contact-line {
               display: flex;
               align-items: center;
-              margin-bottom: 2px; /* Reduced margin */
+              margin-bottom: 2px;
             }
             .mini-icon {
-              width: 8px; /* Smaller */
-              height: 8px; /* Smaller */
-              margin-right: 3px; /* Reduced margin */
+              width: 8px;
+              height: 8px;
+              margin-right: 3px;
               flex-shrink: 0;
             }
             .header-container {
               display: flex;
               justify-content: space-between;
-              margin: 15px 0; /* Reduced margin */
+              margin: 15px 0;
               page-break-inside: avoid;
             }
             .lab-header-container {
@@ -510,20 +584,20 @@ const handlePrint = async () => {
               flex: 1;
             }
             .lab-header h2 {
-              font-size: 0.8rem; /* Smaller font */
+              font-size: 0.8rem;
               color: #000;
-              margin-top: 30px; /* Reduced margin */
-              margin-bottom: 10px; /* Reduced margin */
+              margin-top: 30px;
+              margin-bottom: 10px;
               font-weight: bold;
             }
             .lab-notes {
-              font-size: 0.75rem; /* Smaller font */
+              font-size: 0.75rem;
               color: #333;
-              margin-top: 8px; /* Reduced margin */
+              margin-top: 8px;
             }
             .note-title {
               font-weight: bold;
-              margin-bottom: 5px; /* Reduced margin */
+              margin-bottom: 5px;
             }
             .note-items {
               list-style-type: none;
@@ -533,9 +607,9 @@ const handlePrint = async () => {
             }
             .note-items li {
               position: relative;
-              padding-left: 12px; /* Reduced padding */
-              margin-bottom: 3px; /* Reduced margin */
-              line-height: 1.4; /* Tighter line height */
+              padding-left: 12px;
+              margin-bottom: 3px;
+              line-height: 1.4;
             }
             .note-items li:before {
               content: "-";
@@ -549,10 +623,91 @@ const handlePrint = async () => {
             .authorization-text {
               display: inline-block;
               text-align: left;
-              font-size: 0.8rem; /* Smaller font */
+              font-size: 0.8rem;
               color: #000;
-              margin-top: 30px; /* Reduced margin */
-              margin-bottom: 10px; /* Reduced margin */
+              margin-top: 30px;
+              margin-bottom: 10px;
+            }
+
+            /* Soil Health Index Styles */
+            .soil-health-card {
+              border: 2px solid #3498db;
+              border-radius: 10px;
+              padding: 15px;
+              margin: 15px 0;
+              background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+              page-break-inside: avoid;
+            }
+            .soil-health-header {
+              text-align: center;
+              margin-bottom: 15px;
+            }
+            .soil-health-title {
+              font-size: 18px;
+              font-weight: bold;
+              color: #2c3e50;
+              margin: 0;
+            }
+            .soil-health-content {
+              display: flex;
+              align-items: center;
+              justify-content: space-around;
+            }
+            .soil-health-gauge {
+              position: relative;
+              width: 120px;
+              height: 120px;
+            }
+            .gauge-background {
+              width: 100%;
+              height: 100%;
+              border-radius: 50%;
+              background: conic-gradient(
+                #e74c3c 0% 20%,
+                #e67e22 20% 40%,
+                #f39c12 40% 60%,
+                #2ecc71 60% 80%,
+                #27ae60 80% 100%
+              );
+              position: relative;
+            }
+            .gauge-inner {
+              position: absolute;
+              top: 10%;
+              left: 10%;
+              width: 80%;
+              height: 80%;
+              background: white;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .gauge-value {
+              font-size: 24px;
+              font-weight: bold;
+              color: #2c3e50;
+            }
+            .soil-health-info {
+              flex: 1;
+              padding-left: 20px;
+            }
+            .soil-health-score {
+              font-size: 14px;
+              margin-bottom: 10px;
+            }
+            .soil-health-status {
+              font-size: 16px;
+              font-weight: bold;
+              padding: 8px 12px;
+              border-radius: 20px;
+              text-align: center;
+              display: inline-block;
+            }
+            .soil-health-recommendations {
+              margin-top: 10px;
+              font-size: 12px;
+              color: #7f8c8d;
             }
 
             /* Print-specific fixes */
@@ -593,8 +748,8 @@ const handlePrint = async () => {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              margin: 8px 0 20px; /* Reduced margin */
-              padding: 0 15px; /* Reduced padding */
+              margin: 8px 0 20px;
+              padding: 0 15px;
               page-break-inside: avoid;
             }
             .slogan-text {
@@ -602,7 +757,7 @@ const handlePrint = async () => {
               text-align: left;
             }
             .main-slogan {
-              font-size: 12px; /* Smaller font */
+              font-size: 12px;
               font-weight: bold;
               color: #000;
             }
@@ -615,7 +770,7 @@ const handlePrint = async () => {
               text-align: right;
             }
             .logo-icon {
-              height: 50px; /* Smaller logos */
+              height: 50px;
               object-fit: contain;
             }
             
@@ -628,13 +783,13 @@ const handlePrint = async () => {
               page-break-inside: avoid;
             }
             .report-title {
-              font-size: 18px; /* Slightly smaller */
+              font-size: 18px;
               font-weight: bold;
-              margin-bottom: 8px; /* Reduced margin */
+              margin-bottom: 8px;
             }
             .report-subtitle {
-              font-size: 12px; /* Smaller font */
-              margin-bottom: 15px; /* Reduced margin */
+              font-size: 12px;
+              margin-bottom: 15px;
             }
             
             /* Force colors to print */
@@ -646,7 +801,7 @@ const handlePrint = async () => {
 
             /* Marathi-specific adjustments */
             .marathi-text {
-              line-height: 1.3; /* Tighter line spacing for Marathi */
+              line-height: 1.3;
             }
             
             /* Compact layout for recommendations */
@@ -661,11 +816,11 @@ const handlePrint = async () => {
           <div class="print-container">
             <div class="logo-container">
               <div>
-                <img src="logo_com.png" alt="Left Logo" style="height: 120px;" /> <!-- Smaller logo -->
+                <img src="logo_com.png" alt="Left Logo" style="height: 120px;" />
               </div>
-              <div style="display: flex; gap: 15px;"> <!-- Reduced gap -->
-                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" /> <!-- Smaller logo -->
-                <img src="msme.png" alt="Right Logo 2" style="height: 70px;" /> <!-- Smaller logo -->
+              <div style="display: flex; gap: 15px;">
+                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" />
+                <img src="msme.png" alt="Right Logo 2" style="height: 70px;" />
               </div>
             </div>
             <hr style="width: 100%; margin-top:3px; border: 1px solid #3498db;">
@@ -759,8 +914,8 @@ const handlePrint = async () => {
           
           <!-- Page 2: Graph and Recommendations -->
           <div class="print-container force-break">
-            <div style="text-align: center; margin-bottom: 10px;"> <!-- Reduced margin -->
-              <h2 style="margin: 10px 0; font-size: 16px;">${getPrintLabel('page2Title')}</h2> <!-- Smaller heading -->
+            <div style="text-align: center; margin-bottom: 10px;">
+              <h2 style="margin: 10px 0; font-size: 16px;">${getPrintLabel('page2Title')}</h2>
             </div>
             
             <div class="print-section avoid-break">
@@ -784,6 +939,33 @@ const handlePrint = async () => {
                 <img src="${chartImage}" style="width: 100%; height: 100%; object-fit: contain;" />
               </div>
             </div>
+
+             <!-- Soil Health Index Card -->
+              <div class="soil-health-card avoid-break">
+                <div class="soil-health-header">
+                  <h3 class="soil-health-title">${getPrintLabel('soilHealthIndex')}</h3>
+                </div>
+                <div class="soil-health-content">
+                  <div class="soil-health-gauge">
+                    <div class="gauge-background"></div>
+                    <div class="gauge-inner">
+                      <div class="gauge-value">${soilHealthIndex.toFixed(1)}%</div>
+                    </div>
+                  </div>
+                  <div class="soil-health-info">
+                    <div class="soil-health-score">
+                      <strong>${t.soilHealthScore}:</strong> ${soilHealthIndex.toFixed(1)}%
+                    </div>
+                    <div class="soil-health-status" style="background-color: ${getStatusColor(soilHealthIndex)}; color: white;">
+                      ${soilHealthStatus}
+                    </div>
+                    <div class="soil-health-recommendations">
+                      ${getOverallRecommendations()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             
             <div class="print-section avoid-break">
               <h3>${getPrintLabel('fertilizerRecommendations')}</h3>
@@ -858,7 +1040,7 @@ const handlePrint = async () => {
 
               <div class="authorization-container">
                 <div class="signature-image">
-                  <img src="signature.png" alt="Digital Signature" style="height: 80px;" /> <!-- Smaller signature -->
+                  <img src="signature.png" alt="Digital Signature" style="height: 80px;" />
                 </div>
                 <div class="authorization-text">
                   ${getPrintLabel('authorisedBy')}<br>
@@ -935,7 +1117,7 @@ const handlePrint = async () => {
                 <div class="address-block">
                   <div class="address-header">
                     <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9-3-9m-9 9a9 9 0 019-9"/>
                     </svg>
                     <h4 class="address-title">${getPrintLabel('website')}</h4>
                   </div>
@@ -951,19 +1133,19 @@ const handlePrint = async () => {
       </html>
     `);
 
-    setTimeout(() => {
-      printWindow.document.close();
-      printWindow.focus();
-      printWindow.print();
-      printWindow.close();
-    }, 1000);
-  } catch (error) {
-    console.error("Error generating print:", error);
-    alert(language === "english"
-      ? "Error generating print. Please try again."
-      : "प्रिंट तयार करताना त्रुटी. कृपया पुन्हा प्रयत्न करा.");
-  }
-};
+      setTimeout(() => {
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+      }, 1000);
+    } catch (error) {
+      console.error("Error generating print:", error);
+      alert(language === "english"
+        ? "Error generating print. Please try again."
+        : "प्रिंट तयार करताना त्रुटी. कृपया पुन्हा प्रयत्न करा.");
+    }
+  };
 
   const getLimeRecommendation = () => {
     const pHItem = soilData.find(item => item.name === "pH");
@@ -1006,17 +1188,83 @@ const handlePrint = async () => {
         : "सर्व सूक्ष्म पोषक तत्व इष्टतम श्रेणीत आहेत";
   };
 
+  const getOverallRecommendations = () => {
+    if (soilHealthIndex >= 80) {
+      return language === "english" 
+        ? "Excellent soil health! Maintain current practices with regular monitoring."
+        : "उत्कृष्ट माती आरोग्य! नियमित देखरेख सह सध्याच्या पद्धती राखा.";
+    } else if (soilHealthIndex >= 70) {
+      return language === "english"
+        ? "Good soil health. Focus on maintaining organic matter and balanced fertilization."
+        : "चांगले माती आरोग्य. सेंद्रिय पदार्थ राखणे आणि संतुलित खतवापरावर लक्ष केंद्रित करा.";
+    } else if (soilHealthIndex >= 60) {
+      return language === "english"
+        ? "Fair soil health. Improve organic content and address nutrient deficiencies."
+        : "समाधानकारक माती आरोग्य. सेंद्रिय सामग्री सुधारा आणि पोषक तत्वांच्या कमतरता दूर करा.";
+    } else if (soilHealthIndex >= 50) {
+      return language === "english"
+        ? "Poor soil health. Implement comprehensive soil improvement program."
+        : "कमकुवत माती आरोग्य. व्यापक माती सुधार कार्यक्रम अंमलात आणा.";
+    } else {
+      return language === "english"
+        ? "Very poor soil health. Immediate soil remediation required with expert guidance."
+        : "अत्यंत कमकुवत माती आरोग्य. तज्ञ मार्गदर्शनासह तातडीने माती सुधारणा आवश्यक.";
+    }
+  };
+
   const toggleLanguage = (lang) => {
     setLanguage(lang);
     setShowLanguageDropdown(false);
   };
+
+  // Soil Health Index Display Component
+  const SoilHealthIndexDisplay = () => (
+    <div className="bg-white p-6 rounded-xl shadow-lg mb-6 border-2 border-blue-500">
+      <div className="text-center mb-4">
+        <h3 className="text-2xl font-bold text-gray-800">{t.soilHealthIndex}</h3>
+      </div>
+      <div className="flex flex-col md:flex-row items-center justify-between">
+        <div className="relative w-32 h-32 mb-4 md:mb-0">
+          <div 
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: `conic-gradient(
+                #e74c3c 0% 20%,
+                #e67e22 20% 40%,
+                #f39c12 40% 60%,
+                #2ecc71 60% 80%,
+                #27ae60 80% 100%
+              )`
+            }}
+          />
+          <div className="absolute inset-4 bg-white rounded-full flex items-center justify-center">
+            <span className="text-2xl font-bold text-gray-800">{soilHealthIndex.toFixed(1)}%</span>
+          </div>
+        </div>
+        <div className="flex-1 md:pl-6">
+          <div className="mb-3">
+            <strong className="text-lg">{t.soilHealthScore}:</strong> {soilHealthIndex.toFixed(1)}%
+          </div>
+          <div 
+            className="text-lg font-bold text-white px-4 py-2 rounded-full text-center"
+            style={{ backgroundColor: getStatusColor(soilHealthIndex) }}
+          >
+            {soilHealthStatus}
+          </div>
+          <div className="mt-3 text-sm text-gray-600">
+            {getOverallRecommendations()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="p-6 sm:p-10 bg-gradient-to-r from-green-50 to-blue-50 min-h-screen ml-30">
       <div className="flex justify-end mb-4 relative">
         <div className="relative inline-block text-left">
           <button
-            type="button"         
+            type="button"
             onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
             className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500"
             id="language-menu"
@@ -1172,6 +1420,9 @@ const handlePrint = async () => {
 
             {showGraph && (
               <div className="mt-4 sm:mt-6">
+                {/* Soil Health Index Display */}
+                <SoilHealthIndexDisplay />
+
                 <h3 className="text-xl sm:text-2xl font-semibold text-center mb-4">{t.graphTitle}</h3>
                 <div className="flex justify-center gap-2 sm:gap-4 mb-4">
                   <div className="flex items-center">
@@ -1257,7 +1508,6 @@ const handlePrint = async () => {
                     className="w-16 mr-5 sm:w-20 h-16 sm:h-20"
                   />
                 </div>
-
 
                 <div className="flex justify-center mt-4 sm:mt-6 no-print">
                   <button
