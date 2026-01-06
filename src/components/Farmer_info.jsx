@@ -371,29 +371,29 @@ const SoilReport = () => {
   };
 
   const handlePrint = async () => {
-    try {
-      const chartElement = document.querySelector('.recharts-wrapper');
-      const canvas = await html2canvas(chartElement, {
-        scale: 2,
-        logging: false,
-        useCORS: true,
-      });
-      const chartImage = canvas.toDataURL("image/png");
+  try {
+    const chartElement = document.querySelector('.recharts-wrapper');
+    const canvas = await html2canvas(chartElement, {
+      scale: 2,
+      logging: false,
+      useCORS: true,
+    });
+    const chartImage = canvas.toDataURL("image/png");
 
-      const farmerEntries = Object.entries(reportData);
-      const halfLength = Math.ceil(farmerEntries.length / 2);
-      const leftColumn = farmerEntries.slice(0, halfLength);
-      const rightColumn = farmerEntries.slice(halfLength);
+    const farmerEntries = Object.entries(reportData);
+    const halfLength = Math.ceil(farmerEntries.length / 2);
+    const leftColumn = farmerEntries.slice(0, halfLength);
+    const rightColumn = farmerEntries.slice(halfLength);
 
-      const printWindow = window.open('', '', 'width=1200,height=800');
+    const printWindow = window.open('', '', 'width=1200,height=800');
 
-      // Calculate if Marathi content needs more space
-      const isMarathi = language === "marathi";
-      const page1ExtraMargin = isMarathi ? 'margin-bottom: 5px;' : '';
-      const soilTableFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
-      const recommendationsFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+    // Calculate if Marathi content needs more space
+    const isMarathi = language === "marathi";
+    const page1ExtraMargin = isMarathi ? 'margin-bottom: 5px;' : '';
+    const soilTableFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
+    const recommendationsFontSize = isMarathi ? 'font-size: 11px;' : 'font-size: 12px;';
 
-      printWindow.document.write(`
+    printWindow.document.write(`
       <!DOCTYPE html>
       <html>
         <head>
@@ -709,6 +709,40 @@ const SoilReport = () => {
               font-size: 12px;
               color: #7f8c8d;
             }
+            
+            /* Color Indicators Styles */
+            .color-indicators {
+              margin-top: 15px;
+            }
+            .color-indicators-title {
+              font-size: 12px;
+              font-weight: bold;
+              margin-bottom: 5px;
+              color: #2c3e50;
+            }
+            .color-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 6px;
+            }
+            .color-item {
+              display: flex;
+              align-items: center;
+            }
+            .color-dot {
+              width: 10px;
+              height: 10px;
+              border-radius: 50%;
+              margin-right: 5px;
+              flex-shrink: 0;
+            }
+            .color-label {
+              font-size: 10px;
+              line-height: 1.2;
+            }
+            .full-width {
+              grid-column: 1 / span 2;
+            }
 
             /* Print-specific fixes */
             @media print {
@@ -940,7 +974,7 @@ const SoilReport = () => {
               </div>
             </div>
 
-             <!-- Soil Health Index Card -->
+             <!-- Soil Health Index Card with Color Indicators -->
               <div class="soil-health-card avoid-break">
                 <div class="soil-health-header">
                   <h3 class="soil-health-title">${getPrintLabel('soilHealthIndex')}</h3>
@@ -959,6 +993,34 @@ const SoilReport = () => {
                     <div class="soil-health-status" style="background-color: ${getStatusColor(soilHealthIndex)}; color: white;">
                       ${soilHealthStatus}
                     </div>
+                    
+                    <!-- Color Indicators -->
+                    <div class="color-indicators">
+                      <p class="color-indicators-title">${language === "english" ? "Color Indicators:" : "रंग सूचक:"}</p>
+                      <div class="color-grid">
+                        <div class="color-item">
+                          <div class="color-dot" style="background-color: #27ae60;"></div>
+                          <span class="color-label">${language === "english" ? "Excellent (80-100%)" : "उत्कृष्ट (८०-१००%)"}</span>
+                        </div>
+                        <div class="color-item">
+                          <div class="color-dot" style="background-color: #2ecc71;"></div>
+                          <span class="color-label">${language === "english" ? "Good (70-79%)" : "चांगले (७०-७९%)"}</span>
+                        </div>
+                        <div class="color-item">
+                          <div class="color-dot" style="background-color: #f39c12;"></div>
+                          <span class="color-label">${language === "english" ? "Fair (60-69%)" : "समाधानकारक (६०-६९%)"}</span>
+                        </div>
+                        <div class="color-item">
+                          <div class="color-dot" style="background-color: #e67e22;"></div>
+                          <span class="color-label">${language === "english" ? "Poor (50-59%)" : "कमकुवत (५०-५९%)"}</span>
+                        </div>
+                        <div class="color-item full-width">
+                          <div class="color-dot" style="background-color: #e74c3c;"></div>
+                          <span class="color-label">${language === "english" ? "Very Poor (0-49%)" : "अत्यंत कमकुवत (०-४९%)"}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
                     <div class="soil-health-recommendations">
                       ${getOverallRecommendations()}
                     </div>
@@ -1246,12 +1308,42 @@ const SoilReport = () => {
             <strong className="text-lg">{t.soilHealthScore}:</strong> {soilHealthIndex.toFixed(1)}%
           </div>
           <div 
-            className="text-lg font-bold text-white px-4 py-2 rounded-full text-center"
+            className="text-lg font-bold text-white px-4 py-2 rounded-full text-center mb-4"
             style={{ backgroundColor: getStatusColor(soilHealthIndex) }}
           >
             {soilHealthStatus}
           </div>
-          <div className="mt-3 text-sm text-gray-600">
+          
+          {/* Color Indicators */}
+          <div className="mt-4">
+            <p className="text-sm font-semibold mb-2 text-gray-700">
+              {language === "english" ? "Color Indicators:" : "रंग सूचक:"}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: '#27ae60' }}></div>
+                <span className="text-sm">{language === "english" ? "Excellent (80-100%)" : "उत्कृष्ट (८०-१००%)"}</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: '#2ecc71' }}></div>
+                <span className="text-sm">{language === "english" ? "Good (70-79%)" : "चांगले (७०-७९%)"}</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: '#f39c12' }}></div>
+                <span className="text-sm">{language === "english" ? "Fair (60-69%)" : "समाधानकारक (६०-६९%)"}</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: '#e67e22' }}></div>
+                <span className="text-sm">{language === "english" ? "Poor (50-59%)" : "कमकुवत (५०-५९%)"}</span>
+              </div>
+              <div className="flex items-center col-span-2">
+                <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: '#e74c3c' }}></div>
+                <span className="text-sm">{language === "english" ? "Very Poor (0-49%)" : "अत्यंत कमकुवत (०-४९%)"}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 text-sm text-gray-600">
             {getOverallRecommendations()}
           </div>
         </div>
