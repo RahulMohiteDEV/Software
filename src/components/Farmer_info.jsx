@@ -1134,7 +1134,7 @@ const SoilReport = () => {
                     </svg>
                     <h4 class="address-title">${getPrintLabel('officeAddress')}</h4>
                   </div>
-                  <p class="address-text">CIII Center for Invention,Innovation,Incubatiopn,3rd Floor,G-buliding YCIS,Powai Naka,Satara</p>
+                  <p class="address-text">Survey no. 392,B 1st  floor, Sarswati Vihar-2,Shahupuri Satara-415002, Tal and Dist-Satara</p>
                 </div>
                 
                 <div class="separator">|</div>
