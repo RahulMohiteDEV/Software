@@ -1247,6 +1247,7 @@ const FertilizerCalculator = () => {
 
               <!-- Soil Analysis Results -->
               ${useSoilAnalysis ? `
+                <!--
               <div class="print-section allow-break">
                 <h3>${t.soilAnalysisTitle}</h3>
                 <table class="print-table">
@@ -1272,6 +1273,7 @@ const FertilizerCalculator = () => {
                   </tbody>
                 </table>
               </div>
+              -->
               ` : ''}
 
               <!-- Soil Analysis Recommendations -->
@@ -1543,7 +1545,7 @@ const FertilizerCalculator = () => {
                     </svg>
                     <h4 class="address-title">${t.officeAddress}</h4>
                   </div>
-                  <p class="address-text">Survey no. 392,B 1st  floor, Sarswati Vihar-2,Shahupuri Satara-415002, Tal and Dist-Satara</p>
+                  <p class="address-text">Survey. No. 397, , Datta Darshan Housing Society, Shahuluri Chowk, Shahupuri Iti Rd., Shahupuri, Tal and Dist.- Satara(MS)India-415002</p>
                 </div>
                 
                 <div class="separator">|</div>
