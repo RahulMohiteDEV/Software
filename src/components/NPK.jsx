@@ -94,7 +94,7 @@ const cropNamesMarathi = {
   Safflower: "करडई",
   Brocoli: "ब्रोकली ",
   Strawberry: "स्ट्रॉबेरी ",
-  Pomegranate:"डाळिंब",
+  Pomegranate: "डाळिंब",
 };
 
 const soilTypes = ["Red Soil", "Black Soil", "Medium Soil", "Silt"];
@@ -114,7 +114,7 @@ const fertilizers = {
   npk20200013: { name: "NPK 20-20-00-13", nameMarathi: "एनपीके 20-20-00-13", n: 20, p: 20, k: 0, s: 13 },
   npk282800: { name: "NPK 28-28-00", nameMarathi: "एनपीके 28-28-00", n: 28, p: 28, k: 0 },
   npk143514: { name: "NPK 14-35-14", nameMarathi: "एनपीके 14-35-14", n: 14, p: 35, k: 14 },
-  
+
   // Water Soluble Fertilizers
   map: { name: "MAP (12-61-00)", nameMarathi: "एमएपी (12-61-00)", n: 12, p: 61, k: 0 },
   mkp: { name: "MKP (00-52-34)", nameMarathi: "एमकेपी (00-52-34)", n: 0, p: 52, k: 34 },
@@ -367,7 +367,7 @@ const FertilizerCalculator = () => {
     npk20200013: false,
     npk282800: false,
     npk143514: false,
-    
+
     // Water Soluble Fertilizers
     map: false,
     mkp: false,
@@ -423,9 +423,9 @@ const FertilizerCalculator = () => {
   const handleSoilAnalysisChange = (event) => {
     const { name, value } = event.target;
     setSoilAnalysis({
-      ...soilAnalysis,                               
+      ...soilAnalysis,
       [name]: value === "" ? "" : Number(value)
-    });  
+    });
   };
 
   const toggleSoilAnalysis = () => {
@@ -435,7 +435,7 @@ const FertilizerCalculator = () => {
   // Calculate deficit based on soil analysis using the formula: Deficit = Crop requirement - Soil available
   const calculateDeficit = () => {
     const npk = cropData[selectedCrop] || { nitrogen: 0, phosphorus: 0, potassium: 0 };
-    
+
     if (!useSoilAnalysis || !soilAnalysis.nitrogen || !soilAnalysis.phosphorus || !soilAnalysis.potassium) {
       return {
         nitrogen: npk.nitrogen,
@@ -480,7 +480,7 @@ const FertilizerCalculator = () => {
       '282800': { n: 28, p: 28, k: 0 },
       '143514': { n: 14, p: 35, k: 14 },
       '20200013': { n: 20, p: 20, k: 0, s: 13 },
-      
+
       // Water Soluble Fertilizers
       'map': { n: 12, p: 61, k: 0 },
       'mkp': { n: 0, p: 52, k: 34 },
@@ -492,7 +492,7 @@ const FertilizerCalculator = () => {
     };
 
     const { n: N_percent, p: P_percent, k: K_percent } = npkCompositions[type];
-    
+
     // For water soluble fertilizers, calculate based on the limiting nutrient
     let baseFertilizer;
     if (type === 'map') {
@@ -522,7 +522,7 @@ const FertilizerCalculator = () => {
     const urea = (additional_N * 100) / fertilizers.urea.n;
     const additional_K = Math.max(0, target_K - K_from_base);
     const mop = (additional_K * 100) / fertilizers.mop.k;
-    
+
     return {
       baseFertilizer: baseFertilizer.toFixed(2),
       urea: urea.toFixed(2),
@@ -538,12 +538,12 @@ const FertilizerCalculator = () => {
   // CORRECTED: New calculation for water soluble fertilizers using deficit formula
   const calculateWaterSolubleFertilizer = (fertilizerId, deficit) => {
     const fertilizer = fertilizers[fertilizerId];
-    
+
     // Calculate total deficit for the area
     const totalDeficitN = deficit.nitrogen * totalArea;
     const totalDeficitP = deficit.phosphorus * totalArea;
     const totalDeficitK = deficit.potassium * totalArea;
-    
+
     // For balanced fertilizers like 19-19-19, calculate based on the limiting nutrient
     if (fertilizerId === 'npk191919') {
       const nReq = (totalDeficitN * 100) / fertilizer.n;
@@ -551,43 +551,43 @@ const FertilizerCalculator = () => {
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(nReq, pReq, kReq).toFixed(2);
     }
-    
+
     if (fertilizerId === 'npk134013') {
       const nReq = (totalDeficitN * 100) / fertilizer.n;
       const pReq = (totalDeficitP * 100) / fertilizer.p;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(nReq, pReq, kReq).toFixed(2);
     }
-    
+
     // For MAP (12-61-00) - primarily for Phosphorus
     if (fertilizerId === 'map') {
       return ((totalDeficitP * 100) / fertilizer.p).toFixed(2);
     }
-    
+
     // For MKP (00-52-34) - primarily for Phosphorus and Potassium
     if (fertilizerId === 'mkp') {
       const pReq = (totalDeficitP * 100) / fertilizer.p;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(pReq, kReq).toFixed(2);
     }
-    
+
     // For MOP Water Soluble (00-00-50) - primarily for Potassium
     if (fertilizerId === 'mop_ws') {
       return ((totalDeficitK * 100) / fertilizer.k).toFixed(2);
     }
-    
+
     // For PN (13-00-45) - primarily for Nitrogen and Potassium
     if (fertilizerId === 'pn') {
       const nReq = (totalDeficitN * 100) / fertilizer.n;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(nReq, kReq).toFixed(2);
     }
-    
+
     // For NPKS (00-00-23-08) - primarily for Potassium
     if (fertilizerId === 'npks00002308') {
       return ((totalDeficitK * 100) / fertilizer.k).toFixed(2);
     }
-    
+
     return "0.00";
   };
 
@@ -788,7 +788,7 @@ const FertilizerCalculator = () => {
 
     // Water Soluble Fertilizers - using deficit calculation
     const deficit = calculateDeficit();
-    
+
     if (selectedFertilizers.map) {
       waterSolubleFertilizers.push({
         name: getFertilizerName('map'),
@@ -1195,7 +1195,7 @@ const FertilizerCalculator = () => {
                 <img src="logo_com.png" alt="Left Logo" style="height: 90px;" />
               </div>
               <div style="display: flex; gap: 10px;">
-                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" />
+                <img src="startup1.png" alt="Right Logo 2" style="height: 64px;" />
                 <img src="msme.png" alt="Right Logo 2" style="height: 46px;" />
               </div>
             </div>
@@ -1337,32 +1337,7 @@ const FertilizerCalculator = () => {
 
               
 
-              <!-- Nutrient Requirements -->
-              <div class="print-section allow-break">
-                <h3>${t.nutrientRequirements}</h3>
-                <table class="print-table">
-                  <thead>
-                    <tr>
-                      <th>${t.nutrient}</th>
-                      <th>${t.required}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>${t.nitrogen.split(" (")[0]} (N)</td>
-                      <td>${(npk.nitrogen * totalArea).toFixed(2)} kg</td>
-                    </tr>
-                    <tr>
-                      <td>${t.phosphorus.split(" (")[0]} (P₂O₅)</td>
-                      <td>${(npk.phosphorus * totalArea).toFixed(2)} kg</td>
-                    </tr>
-                    <tr>
-                      <td>${t.potassium.split(" (")[0]} (K₂O)</td>
-                      <td>${(npk.potassium * totalArea).toFixed(2)} kg</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+        
 
               <!-- Fertilizer Recommendations -->
               <div class="print-section allow-break">
@@ -1378,7 +1353,7 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${straightFertilizers.map(fertilizer =>`
+                    ${straightFertilizers.map(fertilizer => `
                     <tr>
                       <td>${fertilizer.name}</td>
                       <td>${fertilizer.amount}</td>
@@ -1472,7 +1447,7 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${micronutrients.map(item =>`
+                    ${micronutrients.map(item => `
                     <tr> 
                       <td>${item.nutrient}</td> 
                       <td>${item.range}</td> 
@@ -1557,7 +1532,7 @@ const FertilizerCalculator = () => {
                     </svg>
                     <h4 class="address-title">${t.labAddress}</h4>
                   </div>
-                  <p class="address-text">B-3 Dipali Complex, Near Karad Urban Bank, Dahiwadi Rd., Pusegaon. Tal- Khatav, Dist- Satara. MH. 415 502</p>
+                  <p class="address-text">Survey. No. 397, , Datta Darshan Housing Society, Shahuluri Chowk, Shahupuri Iti Rd., Shahupuri, Tal and Dist.- Satara(MS)India-415002</p>
                 </div>
                 
                 <div class="separator">|</div>

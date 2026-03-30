@@ -853,7 +853,7 @@ const SoilReport = () => {
                 <img src="logo_com.png" alt="Left Logo" style="height: 120px;" />
               </div>
               <div style="display: flex; gap: 15px;">
-                <img src="startup.png" alt="Right Logo 2" style="height: 80px;" />
+                <img src="startup1.png" alt="Right Logo 2" style="height: 88px;" />
                 <img src="msme.png" alt="Right Logo 2" style="height: 70px;" />
               </div>
             </div>
