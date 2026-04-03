@@ -1277,10 +1277,11 @@ const FertilizerCalculator = () => {
               ` : ''}
 
               <!-- Soil Analysis Recommendations -->
-              ${useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium ? `
-              <div class="print-section allow-break">
-                <h3>${t.soilAnalysisRecommendations}</h3>
-                <div style="margin-bottom: 8px; font-size: 10px;">
+             <!-- ${useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium ? `
+              <div class="print-section allow-break"> -->
+
+               <h3>${t.soilAnalysisRecommendations}</h3>
+                <!-- <div style="margin-bottom: 8px; font-size: 10px;">
                   <strong>${t.nitrogen.split(" (")[0]}: ${soilAnalysis.nitrogen} kg/ha</strong><br>
                   ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).level} (${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).range})<br>
                   ${language === 'en' ? getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendation : getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendationMarathi}
@@ -1295,7 +1296,7 @@ const FertilizerCalculator = () => {
                   ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("potassium", soilAnalysis.potassium).level} (${getNutrientLevel("potassium", soilAnalysis.potassium).range})<br>
                   ${language === 'en' ? getNutrientLevel("potassium", soilAnalysis.potassium).recommendation : getNutrientLevel("potassium", soilAnalysis.potassium).recommendationMarathi}
                 </div>
-              </div>
+              </div> -->
               ` : ''}
               
               <!-- Deficit Calculation for Water Soluble Fertilizers -->
