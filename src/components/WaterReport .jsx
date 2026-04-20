@@ -238,247 +238,541 @@ const WaterReport = () => {
         if (warning > 0) return 'bg-yellow-500';
         return 'bg-green-500';
     };
+   
     const handlePrint = () => {
-        const printWindow = window.open('', '', 'width=1000,height=600');
-        const currentDate = new Date().toLocaleString();
-        const isMarathi = language === 'marathi';
-        const waterStatus = isWaterFit(results, parameters) ?
-            (isMarathi ? 'वापरासाठी योग्य आहे ✅' : 'FIT ✅') :
-            (isMarathi ? 'वापरासाठी योग्य नाही ❌' : 'NOT FIT ❌');
+  const printWindow = window.open('', '', 'width=1200,height=800');
+  const currentDate = new Date().toLocaleString();
+  const isMarathi = language === 'marathi';
+  const waterStatus = isWaterFit(results, parameters) ?
+    (isMarathi ? 'वापरासाठी योग्य आहे' : 'FIT') :
+    (isMarathi ? 'वापरासाठी योग्य नाही' : 'NOT FIT');
 
-        printWindow.document.write(`
-        <html>
-            <head>
-                <title>Water Quality Report</title>
-                <script src="https://cdn.tailwindcss.com"></script>
-                <style>
-                  body { font-family: Arial, sans-serif; margin: 20px; }
-        .report-header { 
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 20px;
-          text-align: center;
-          position: relative;
-        }
-        .logo-container {
-          position: absolute;
-          left: 0px;
-          top: 50%;
-          transform: translateY(-50%);
-          width:200px;
-          margin-right:800px
-        }
-        .logo {
-          height: 160px;
-          width: auto;
-          margin-right:800px
-        }
-        // .header-content {
-        //   flex: 1;
-        //   padding-left: 200px; 
-        // }
-        // .report-title { 
-        //   font-size: 24px; 
-        //   font-weight: bold; 
-        //   margin-bottom: 10px; 
-        // }
-        // .report-subtitle { 
-        //   font-size: 18px; 
-        //   margin-bottom: 20px; 
-        }
+  // Calculate statistics for gauge
+  const desirableCount = parameters.filter(param => {
+    const value = results[param.id];
+    if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') return true;
+    const numValue = parseFloat(value);
+    const desirable = parseFloat(param.desirable) || 0;
+    return numValue <= desirable;
+  }).length;
 
-.section-line {
-  border: none;
-  border-top: 2px solid #000; /* black horizontal line */
-  margin-bottom: 8px;
-  margin-top: 16px;
-}
+  const permissibleCount = parameters.filter(param => {
+    const value = results[param.id];
+    if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') return false;
+    const numValue = parseFloat(value);
+    const desirable = parseFloat(param.desirable) || 0;
+    const permissible = parseFloat(param.permissible) || desirable;
+    return numValue > desirable && numValue <= permissible;
+  }).length;
 
-.section-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 80px;
-  /* DO NOT include border-bottom or underline here */
-}
+  const aboveLimitCount = parameters.filter(param => {
+    const value = results[param.id];
+    if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') return false;
+    const numValue = parseFloat(value);
+    const desirable = parseFloat(param.desirable) || 0;
+    const permissible = parseFloat(param.permissible) || desirable;
+    return numValue > permissible;
+  }).length;
 
-        .report-section { margin-bottom: 15px; }
-        .section-title { 
-          font-size: 18px; 
-          font-weight: bold; 
-          margin-bottom: 10px; 
-          border-bottom: 1px solid #000; 
-           page-break-inside: avoid;
-        }
-        .info-row { display: flex; margin-bottom: 5px; }
-        .info-label { font-weight: bold; width: 150px; }
-        .info-value { flex: 1; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        th { background-color: #3498db; }
-        .footer { margin-top: 30px; font-size: 12px; text-align: center; }
-        @page { size: auto; margin: 10mm; }
-      </style>
-    </head>
-    <body>
-      <div class="report-header">
+  const qualityPercentage = Math.round((desirableCount * 100 + permissibleCount * 66) / parameters.length);
+  const overallRemark = qualityPercentage >= 80 ? (isMarathi ? 'उत्कृष्ट' : 'Excellent') :
+                        qualityPercentage >= 60 ? (isMarathi ? 'मध्यम' : 'Moderate') :
+                        (isMarathi ? 'खराब' : 'Poor');
 
-        <!-- Top row: logos -->
-  <div class="logo-container" style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top:10px;">
-    
-    <!-- Left logo -->
-    <div style="display: flex;  margin-top: 70px;">
-      <img src="logo_com.png" alt="SATARA BIOCHEM Logo" style="height: 120px;" />
-    </div>
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>${isMarathi ? 'पिण्याच्या पाण्याचा गुणवत्ता अहवाल' : 'Drinking Water Quality Report'}</title>
+        <style>
+          @page {
+            size: A4;
+            margin: 1cm;
+          }
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          .print-container {
+            width: 100%;
+            padding: 10px;
+          }
+          .print-section {
+            margin-bottom: 15px;
+          }
+          .page-break {
+            page-break-before: always;
+          }
+          .no-break {
+            page-break-inside: avoid;
+          }
+          .avoid-break {
+            page-break-inside: avoid;
+          }
+          .print-section h3 {
+            background-color: #3498db !important;
+            color: white !important;
+            padding: 6px 10px;
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            border-radius: 4px;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 11px;
+            page-break-inside: avoid;
+          }
+          .print-table th, .print-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: left;
+          }
+          .print-table th {
+            background-color: #2c3e50 !important;
+            color: white !important;
+            font-weight: bold;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .print-table td {
+            text-align: center;
+          }
+          .print-footer {
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
+            color: #7f8c8d;
+            font-size: 11px;
+          }
+          .two-columns {
+            display: flex;
+            gap: 15px;
+            page-break-inside: avoid;
+          }
+          .column {
+            flex: 1;
+          }
+          .legend {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 8px 0;
+            page-break-inside: avoid;
+          }
+          .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px !important;
+            font-weight: bold !important;
+            color: #000000 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+            border: 1px solid #ddd;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .compact-address-container {
+            font-family: Arial, sans-serif;
+            width: 100%;
+            padding: 6px 0;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            margin: 10px 0;
+            page-break-inside: avoid;
+          }
+          .address-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: nowrap;
+          }
+          .address-block {
+            flex: 1;
+            min-width: 150px;
+            font-size: 10px;
+          }
+          .address-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3px;
+          }
+          .address-icon {
+            width: 12px;
+            height: 12px;
+            margin-right: 4px;
+            flex-shrink: 0;
+          }
+          .address-title {
+            font-size: 10px;
+            font-weight: bold;
+            margin: 0;
+            color: #000;
+          }
+          .address-text {
+            font-size: 9px;
+            margin: 0;
+            line-height: 1.3;
+          }
+          .separator {
+            color: #999;
+            font-size: 10px;
+            align-self: center;
+            padding: 0 3px;
+          }
+          .contact-line {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2px;
+          }
+          .mini-icon {
+            width: 8px;
+            height: 8px;
+            margin-right: 3px;
+            flex-shrink: 0;
+          }
+          .header-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            page-break-inside: avoid;
+          }
+          .lab-header-container {
+            text-align: left;
+            flex: 1;
+          }
+          .lab-header h2 {
+            font-size: 0.8rem;
+            color: #000;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-weight: bold;
+          }
+          .lab-notes {
+            font-size: 0.75rem;
+            color: #333;
+            margin-top: 8px;
+          }
+          .note-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+          }
+          .note-items {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+          }
+          .note-items li {
+            position: relative;
+            padding-left: 12px;
+            margin-bottom: 3px;
+            line-height: 1.4;
+          }
+          .note-items li:before {
+            content: "-";
+            position: absolute;
+            left: 0;
+          }
+          .authorization-container {
+            text-align: center;
+            flex: 1;
+          }
+          .authorization-text {
+            display: inline-block;
+            text-align: left;
+            font-size: 0.8rem;
+            color: #000;
+            margin-top: 30px;
+            margin-bottom: 10px;
+          }
+          .top-slogan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 8px 0 20px;
+            padding: 0 15px;
+            page-break-inside: avoid;
+          }
+          .slogan-text {
+            flex: 1;
+            text-align: left;
+          }
+          .main-slogan {
+            font-size: 12px;
+            font-weight: bold;
+            color: #000;
+          }
+          .center-icon {
+            flex: 1;
+            text-align: center;
+          }
+          .right-icon {
+            flex: 1;
+            text-align: right;
+          }
+          .logo-icon {
+            height: 50px;
+            object-fit: contain;
+          }
+          .logo-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            page-break-inside: avoid;
+          }
+          .report-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+          }
+          .report-subtitle {
+            font-size: 12px;
+            margin-bottom: 15px;
+          }
+          .water-quality-card {
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            page-break-inside: avoid;
+          }
+          .water-quality-header {
+            text-align: center;
+            margin-bottom: 15px;
+          }
+          .water-quality-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+          }
+          .water-quality-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+          }
+          .water-quality-gauge {
+            position: relative;
+            width: 120px;
+            height: 120px;
+          }
+          .gauge-background {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+              #e74c3c 0% 20%,
+              #e67e22 20% 40%,
+              #f39c12 40% 60%,
+              #2ecc71 60% 80%,
+              #27ae60 80% 100%
+            );
+            position: relative;
+          }
+          .gauge-inner {
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            width: 80%;
+            height: 80%;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .gauge-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+          }
+          .water-quality-info {
+            flex: 1;
+            padding-left: 20px;
+          }
+          .water-quality-score {
+            font-size: 14px;
+            margin-bottom: 10px;
+          }
+          .water-quality-status {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 20px;
+            text-align: center;
+            display: inline-block;
+          }
+          .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+          }
+          .progress-fill {
+            height: 20px;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+          }
+          .text-green { color: #2ecc71 !important; font-weight: bold; }
+          .text-yellow { color: #f39c12 !important; font-weight: bold; }
+          .text-red { color: #e74c3c !important; font-weight: bold; }
+          .bg-green-light { background-color: #d4edda; }
+          .bg-yellow-light { background-color: #fff3cd; }
+          .bg-red-light { background-color: #f8d7da; }
+          
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
+            .print-section h3 {
+              background-color: #3498db !important;
+              color: white !important;
+            }
+            .print-table th {
+              background-color: #2c3e50 !important;
+              color: white !important;
+            }
+            .legend-item {
+              color: #000000 !important;
+            }
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+              color-adjust: exact !important;
+            }
+          }
+          .marathi-text {
+            line-height: 1.3;
+          }
+          .summary-card {
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+          }
+          .summary-number {
+            font-size: 24px;
+            font-weight: bold;
+          }
+          .summary-label {
+            font-size: 10px;
+          }
+          .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+          }
+        </style>
+      </head>
+      <body class="${isMarathi ? 'marathi-text' : ''}">
+        <div class="print-container">
+          <!-- Logo Container -->
+          <div class="logo-container">
+            <div>
+              <img src="logo_com.png" alt="SATARA BIOCHEM Logo" style="height: 100px;" />
+            </div>
+            <div style="display: flex; gap: 15px;">
+              <img src="startup.png" alt="Startup Logo" style="height: 70px;" />
+              <img src="msme.png" alt="MSME Logo" style="height: 60px;" />
+            </div>
+          </div>
+          <hr style="width: 100%; margin-top: 5px; border: 1px solid #3498db;">
 
-    <!-- Right logos -->
-  <div style="display: flex; gap: 20px; margin-top: 70px;">
-  <img src="startup.png" alt="Right Logo 3" style="height: 100px;" />
-  <img src="msme.png" alt="Right Logo 2" style="height: 60px;" />
+          <!-- Title -->
+          <div style="text-align: center; margin-top: 10px;">
+            <div class="report-title">${isMarathi ? 'पिण्याच्या पाण्याचा गुणवत्ता अहवाल' : 'Drinking Water Quality Report'}</div>
+            <div class="report-subtitle">${currentDate}</div>
+          </div>
 
-</div>
+          <!-- Farmer & Sample Information -->
+          <div class="print-section avoid-break">
+            <h3>${isMarathi ? 'शेतकरी आणि नमुना माहिती' : 'Farmer & Sample Information'}</h3>
+            <div class="two-columns">
+              <div class="column">
+                <table class="print-table">
+                  <tbody>
+                    <tr><td width="40%"><strong>${isMarathi ? 'नाव' : 'Name'}</strong></td><td>${farmerInfo.name || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'फर्मचे नाव' : 'Firm Name'}</strong></td><td>${farmerInfo.firmName || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'संपर्क क्रमांक' : 'Contact No'}</strong></td><td>${farmerInfo.contactNo || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'ईमेल आयडी' : 'Email Id'}</strong></td><td>${farmerInfo.email || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'नमुना गोळा करणारा' : 'Sample Collected By'}</strong></td><td>${farmerInfo.sampleCollectedBy || '-'}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="column">
+                <table class="print-table">
+                  <tbody>
+                    <tr><td width="40%"><strong>${isMarathi ? 'नमुना क्रमांक' : 'Sample No'}</strong></td><td>${farmerInfo.sampleNo || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'चाचणी अहवाल तारीख' : 'Test Report Date'}</strong></td><td>${farmerInfo.testReportDate || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'नमुना वर्णन' : 'Sample Description'}</strong></td><td>${farmerInfo.sampleDescription || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'नमुना प्राप्त तारीख' : 'Sample Received Date'}</strong></td><td>${farmerInfo.sampleReceivedDate || '-'}</td></tr>
+                    <tr><td><strong>${isMarathi ? 'नमुना विश्लेषण तारीख' : 'Sample Analysis Date'}</strong></td><td>${farmerInfo.sampleAnalysisDate || '-'}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
 
-  </div>
-  </div>   
-          <div class="recommandation" style="margin-top: 80px;">
-  <div class="header-content" style="text-align: center; margin-top: 20px;">
-    <div class="report-title" style="font-size: 20px; font-weight: bold; margin-bottom: 20px;">
-    ${isMarathi ? 'पिण्याच्या पाण्याचा  गुणवत्ता अहवाल' : 'Drinking Water Quality Report'}
-    </div>
-    <div class="report-subtitle" style="font-size: 14px; font-weight: bold; margin-bottom: 20px;">
-      ${currentDate}
-    </div>
-  </div>
-</div>
+          <!-- Summary Cards -->
+          <div class="print-section avoid-break">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+              <div style="flex: 1; background-color: #d4edda; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold;">${desirableCount}</div>
+                <div style="font-size: 11px;">${isMarathi ? 'इच्छित मर्यादेमध्ये' : 'Within Desirable'}</div>
+              </div>
+              <div style="flex: 1; background-color: #fff3cd; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold;">${permissibleCount}</div>
+                <div style="font-size: 11px;">${isMarathi ? 'परवानगीयोग्य मर्यादेमध्ये' : 'Within Permissible'}</div>
+              </div>
+              <div style="flex: 1; background-color: #f8d7da; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold;">${aboveLimitCount}</div>
+                <div style="font-size: 11px;">${isMarathi ? 'मर्यादेपेक्षा जास्त' : 'Above Limit'}</div>
+              </div>
+            </div>
+          </div>
 
+          <!-- Water Quality Parameters Table -->
+          <div class="print-section avoid-break">
+            <h3>${isMarathi ? 'पाण्याच्या गुणवत्तेचे मापदंड' : 'Water Quality Parameters'}</h3>
+            <table class="print-table">
+              <thead>
+                <tr>
+                  <th>${isMarathi ? 'क्र.' : 'No.'}</th>
+                  <th>${isMarathi ? 'पॅरामीटर' : 'Parameter'}</th>
+                  <th>${isMarathi ? 'युनिट' : 'Unit'}</th>
+                  <th>${isMarathi ? 'इच्छित मर्यादा' : 'Desirable'}</th>
+                  <th>${isMarathi ? 'परवानगीयोग्य' : 'Permissible'}</th>
+                  <th>${isMarathi ? 'निकाल' : 'Result'}</th>
+                  <th>${isMarathi ? 'स्थिती' : 'Status'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(() => {
+                  let rows = '';
+                  let addedPhysical = false;
+                  let addedChemical = false;
+                  let addedBiological = false;
 
-                 
-                </style>
-            </head>
-            <body class="bg-white p-6">
-                <div class="max-w-4xl mx-auto">
-                    <!-- Report Header -->
-                  
-                    <!-- Farmer Information Section -->
-                    <div class="mb-8">
-                   <h2 class="text-xl font-semibold text-green-700 mb-3">
-  ${isMarathi ? 'शेतकरी आणि नमुना माहिती' : 'Farmer & Sample Information'}
-</h2>
-<div style="width: 100%; height: 2px; background-color: black; margin-bottom: 1rem;"></div>
-
-                        
-                        <div class="grid grid-cols-2 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <h3 class="font-medium text-pink-900 mb-2">
-                                    ${isMarathi ? '📍 वैयक्तिक माहिती' : '📍 Personal Information'}
-                                </h3>
-                                <p><strong>${isMarathi ? 'नाव' : 'Name'}:</strong> ${farmerInfo.name || '-'}</p>
-                                <p><strong>${isMarathi ? 'फर्मचे नाव' : 'Firm Name'}:</strong> ${farmerInfo.firmName || '-'}</p>
-                                <p><strong>${isMarathi ? 'संपर्क क्रमांक' : 'Contact No'}:</strong> ${farmerInfo.contactNo || '-'}</p>
-                                 <p><strong>${isMarathi ? 'ईमेल आयडी' : 'EmailId'}:</strong> ${farmerInfo.email || '-'}</p>
-                                 <p><strong>${isMarathi ? 'नमुना गोळा करणारा' : 'Sample Collected By'}:</strong> ${farmerInfo.sampleCollectedBy || '-'}</p>
-                          
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-cyan-900 mb-2">
-                                    ${isMarathi ? '🧪 नमुना माहिती' : '🧪 Sample Information'}
-                                </h3>
-                                <p><strong>${isMarathi ? 'नमुना क्रमांक' : 'Sample No'}:</strong> ${farmerInfo.sampleNo || '-'}</p>
-                                <p><strong>${isMarathi ? 'चाचणी अहवाल तारीख' : 'Test Report Date'}:</strong> ${farmerInfo.testReportDate || '-'}</p>
-                                      <p><strong>${isMarathi ? 'नमुना वर्णन' : 'Sample Description'}:</strong> ${farmerInfo.sampleDescription || '-'}</p>
-                           <p><strong>${isMarathi ? 'नमुना प्राप्त तारीख' : 'Sample Received date'}:</strong> ${farmerInfo.sampleReceivedDate || '-'}</p>
-                           <p><strong>${isMarathi ? 'नमुना विश्लेषण तारीख' : 'Sample Analysis Date'}:</strong> ${farmerInfo.sampleAnalysisDate || '-'}</p>
-                         
-                        </div>
-                        </div>
-                        </div>
-<div style="width: 100%; height: 2px; background-color: black; margin-bottom: 1rem;"></div>
-                    <!-- Water Quality Summary -->
-                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h2 class="text-xl font-bold text-blue-700">
-                                    ${isMarathi ? 'पाण्याच्या गुणवत्तेचे सारांश' : 'Water Quality Summary'}
-                                </h2>
-                                <div class="mt-2">
-                                    <span class="status-badge ${isWaterFit(results, parameters) ? ' text-red-500' : 'text-green-700'}">
-                                        ${isMarathi ? 'पाण्याची स्थिती' : 'Water Status'}: ${waterStatus}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2">
-                                <div class="bg-green-100 text-green-800 p-2 rounded text-center">
-                                    <div class="font-bold">${parameters.filter(param => {
-            const value = results[param.id];
-            if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') return true;
-            const numValue = parseFloat(value);
-            const desirable = parseFloat(param.desirable) || 0;
-            return numValue <= desirable;
-        }).length}</div>
-                                    <div class="text-xs">${isMarathi ? 'इच्छित मर्यादेमध्ये' : 'Within Desirable'}</div>
-                                </div>
-                                <div class="bg-yellow-100 text-yellow-800 p-2 rounded text-center">
-                                    <div class="font-bold">${parameters.filter(param => {
-            const value = results[param.id];
-            if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') return false;
-            const numValue = parseFloat(value);
-            const desirable = parseFloat(param.desirable) || 0;
-            const permissible = parseFloat(param.permissible) || desirable;
-            return numValue > desirable && numValue <= permissible;
-        }).length}</div>
-                                    <div class="text-xs">${isMarathi ? 'परवानगीयोग्य मर्यादेमध्ये' : 'Within Permissible'}</div>
-                                </div>
-                                <div class="bg-red-100 text-red-800 p-2 rounded text-center">
-                                    <div class="font-bold">${parameters.filter(param => {
-            const value = results[param.id];
-            if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') return false;
-            const numValue = parseFloat(value);
-            const desirable = parseFloat(param.desirable) || 0;
-            const permissible = parseFloat(param.permissible) || desirable;
-            return numValue > permissible;
-        }).length}</div>
-                                    <div class="text-xs">${isMarathi ? 'मर्यादेपेक्षा जास्त' : 'Above Limit'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-<div style="width: 100%; height: 2px; background-color: black; margin-bottom: 1rem;"></div>
-                    <!-- Water Quality Parameters -->
-                    <div class="mb-8">
-                        <h2 class="text-xl font-bold text-blue-700 mb-4">
-                            ${isMarathi ? 'पाण्याच्या गुणवत्तेचे मापदंड' : 'Water Quality Parameters'}
-                        </h2>
-                        
-                     <table class="parameter-table">
-  <thead>
-  <tr>
-    <th rowspan="2">${isMarathi ? 'क्र.' : 'No.'}</th>
-    <th rowspan="2">${isMarathi ? 'पॅरामीटर' : 'Parameter'}</th>
-    <th rowspan="2">${isMarathi ? 'युनिट' : 'Unit'}</th>
-    <th colspan="2" style="text-align: center;">
-  <div>
-    <div><i><b>${isMarathi ? 'बीआयएस तपशील 10500:2012' : 'BIS Specification 10500:2012'}</b></i></div>
-    <div>${isMarathi ? 'सामान्य मूल्य' : 'NORMAL VALUE'}</div>
-  </div>
-</th>
-
-    <th rowspan="2">${isMarathi ? 'निकाल' : 'Results'}</th>
-    <th rowspan="2">${isMarathi ? 'स्थिती' : 'Status'}</th>
-  </tr>
-  <tr>
-    <th>${isMarathi ? 'इच्छित मर्यादा' : 'Desirable Limit'}</th>
-    <th>${isMarathi ? 'परवानगीयोग्य मर्यादा' : 'Permissible Limit'}</th>
-  </tr>
-</thead>
-
-  <tbody>
-    ${(() => {
-                let rows = '';
-                let addedPhysical = false;
-                let addedChemical = false;
-                let addedBiological = false;
-
-                parameters.forEach((param, index) => {
+                  parameters.forEach((param, index) => {
                     const value = results[param.id];
                     const numValue = parseFloat(value);
                     const desirable = parseFloat(param.desirable) || 0;
@@ -486,531 +780,239 @@ const WaterReport = () => {
 
                     let status = '';
                     let statusClass = '';
+                    let statusTextClass = '';
 
                     if (value === '-' || value === 'Agressible' || value === 'Unobjectionable' || value === '<1') {
-                        status = isMarathi ? 'इच्छित' : 'Desirable';
-                        statusClass = 'bg-green-100 text-green-800';
+                      status = isMarathi ? 'इच्छित' : 'Desirable';
+                      statusClass = 'bg-green-light';
+                      statusTextClass = 'text-green';
                     } else if (isNaN(numValue)) {
-                        status = '-';
-                        statusClass = 'bg-gray-100 text-gray-800';
+                      status = '-';
+                      statusClass = 'bg-gray-100';
+                      statusTextClass = '';
                     } else if (numValue <= desirable) {
-                        status = isMarathi ? 'इच्छित' : 'Desirable';
-                        statusClass = 'bg-green-100 text-green-800';
+                      status = isMarathi ? 'इच्छित' : 'Desirable';
+                      statusClass = 'bg-green-light';
+                      statusTextClass = 'text-green';
                     } else if (numValue <= permissible) {
-                        status = isMarathi ? 'परवानगीयोग्य' : 'Permissible';
-                        statusClass = 'bg-yellow-100 text-yellow-800';
+                      status = isMarathi ? 'परवानगीयोग्य' : 'Permissible';
+                      statusClass = 'bg-yellow-light';
+                      statusTextClass = 'text-yellow';
                     } else {
-                        status = isMarathi ? 'मर्यादेपेक्षा जास्त' : 'Above Limit';
-                        statusClass = 'bg-red-100 text-red-800';
+                      status = isMarathi ? 'मर्यादेपेक्षा जास्त' : 'Above Limit';
+                      statusClass = 'bg-red-light';
+                      statusTextClass = 'text-red';
                     }
 
-                    // Insert section rows
-                    if (!addedPhysical) {
-                        rows += `
-      <tr class="bg-blue-100 font-semibold">
-  <td colspan="7" class="text-center">
-    ${isMarathi ? 'भौतिक घटक (Physical Parameters)' : 'PHYSICAL PARAMETERS'}
-  </td>
-</tr>
-
-          `;
-                        addedPhysical = true;
+                    if (!addedPhysical && param.category === 'PHYSICAL') {
+                      rows += `<tr style="background-color: #d0e8f7;"><td colspan="7" style="text-align: center; font-weight: bold;">${isMarathi ? 'भौतिक घटक' : 'PHYSICAL PARAMETERS'}</td></tr>`;
+                      addedPhysical = true;
                     }
-
-                    if (
-                        !addedChemical &&
-                        (param.name.toLowerCase().includes('ph value') ||
-                            param.name.includes('पीएच मूल्य')) // Marathi equivalent
-                    ) {
-                        rows += `
-    <tr class="bg-yellow-100 font-semibold">
-      <td colspan="7" class="text-center">
-        ${isMarathi ? 'रासायनिक घटक (Chemical Parameters)' : 'CHEMICAL PARAMETERS'}
-      </td>
-    </tr>
-  `;
-                        addedChemical = true;
+                    if (!addedChemical && param.category === 'CHEMICAL') {
+                      rows += `<tr style="background-color: #fff3cd;"><td colspan="7" style="text-align: center; font-weight: bold;">${isMarathi ? 'रासायनिक घटक' : 'CHEMICAL PARAMETERS'}</td></tr>`;
+                      addedChemical = true;
                     }
-
-
-                    if (
-                        !addedBiological &&
-                        (param.name.toLowerCase().includes('e.coli') || param.name.includes('ई. कोलाई'))
-                    ) {
-                        rows += `
-    <tr class="bg-green-100 font-semibold">
-      <td colspan="7" class="text-center">
-        ${isMarathi ? 'जैविक घटक (Biological Parameters)' : 'BIOLOGICAL PARAMETERS'}
-      </td>
-    </tr>
-  `;
-                        addedBiological = true;
+                    if (!addedBiological && param.category === 'BIOLOGICAL') {
+                      rows += `<tr style="background-color: #d4edda;"><td colspan="7" style="text-align: center; font-weight: bold;">${isMarathi ? 'जैविक घटक' : 'BIOLOGICAL PARAMETERS'}</td></tr>`;
+                      addedBiological = true;
                     }
 
                     rows += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${param.name}</td>
-            <td>${param.unit}</td>
-            <td>${param.desirable}</td>
-            <td>${param.permissible || '-'}</td>
-            <td>${value || '-'}</td>
-            <td><span class="status-badge ${statusClass}">${status}</span></td>
-          </tr>
-        `;
-                });
+                      <tr>
+                        <td>${index + 1}</td>
+                        <td>${param.name}</td>
+                        <td>${param.unit}</td>
+                        <td>${param.desirable}</td>
+                        <td>${param.permissible || '-'}</td>
+                        <td>${value || '-'}</td>
+                        <td class="${statusClass}"><span class="${statusTextClass} status-badge">${status}</span></td>
+                      </tr>
+                    `;
+                  });
+                  return rows;
+                })()}
+              </tbody>
+            </table>
+          </div>
 
-                return rows;
-            })()}
-  </tbody>
-</table>
+          <!-- Water Quality Index Card -->
+          <div class="water-quality-card avoid-break">
+            <div class="water-quality-header">
+              <h3 class="water-quality-title">${isMarathi ? 'एकूण पाणी गुणवत्ता निर्देशांक' : 'Overall Water Quality Index'}</h3>
+            </div>
+            <div class="water-quality-content">
+              <div class="water-quality-gauge">
+                <div class="gauge-background"></div>
+                <div class="gauge-inner">
+                  <div class="gauge-value">${qualityPercentage}%</div>
+                </div>
+              </div>
+              <div class="water-quality-info">
+                <div class="water-quality-score">
+                  <strong>${isMarathi ? 'गुणवत्ता स्कोअर:' : 'Quality Score:'}</strong> ${qualityPercentage}%
+                </div>
+                <div class="water-quality-status" style="background-color: ${qualityPercentage >= 80 ? '#27ae60' : (qualityPercentage >= 60 ? '#f39c12' : '#e74c3c')}; color: white;">
+                  ${overallRemark}
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${qualityPercentage}%; background-color: ${qualityPercentage >= 80 ? '#27ae60' : (qualityPercentage >= 60 ? '#f39c12' : '#e74c3c')};"></div>
+                </div>
+                <div class="water-quality-score" style="margin-top: 8px;">
+                  <strong>${isMarathi ? 'पिण्यासाठी स्थिती:' : 'Drinking Status:'}</strong>
+                  <span style="color: ${isWaterFit(results, parameters) ? '#27ae60' : '#e74c3c'}; font-weight: bold;"> ${waterStatus}</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-                    </div>
+          <!-- Legend -->
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #2ecc71 !important;"></div>
+              <span>${isMarathi ? 'इच्छित मर्यादेमध्ये' : 'Within Desirable'}</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #f39c12 !important;"></div>
+              <span>${isMarathi ? 'परवानगीयोग्य मर्यादेमध्ये' : 'Within Permissible'}</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background-color: #e74c3c !important;"></div>
+              <span>${isMarathi ? 'मर्यादेपेक्षा जास्त' : 'Above Limit'}</span>
+            </div>
+          </div>
 
-                    <!-- Recommendations -->
-                    <div class="mt-8">
-                        <h2 class="text-xl font-bold text-purple-700 mb-3">
-                            ${isMarathi ? 'शिफारसी' : 'Recommendations'}
-                        </h2>
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            ${(() => {
+          <!-- Recommendations -->
+          <div class="print-section avoid-break">
+            <h3>${isMarathi ? 'शिफारसी' : 'Recommendations'}</h3>
+            <div style="background-color: #fff3cd; padding: 12px; border-radius: 8px; font-size: 11px;">
+              ${(() => {
                 const alerts = [];
-
                 if (results.NITRATES > 45) {
-                    alerts.push(`
-                                        <div class="flex items-start mb-2">
-                                            <span class="text-red-500 mr-2">⚠️</span>
-                                            <p>${isMarathi
-                            ? 'नायट्रेटची पातळी जास्त आहे. नायट्रेट-विशिष्ट फिल्टर वापरण्याचा विचार करा.'
-                            : 'Nitrate level is high. Consider using a nitrate-specific filter.'}
-                                            </p>
-                                        </div>
-                                    `);
+                  alerts.push(`⚠️ ${isMarathi ? 'नायट्रेटची पातळी जास्त आहे. नायट्रेट-विशिष्ट फिल्टर वापरा.' : 'Nitrate level is high. Use nitrate-specific filter.'}`);
                 }
-
                 if (results.TDS > 500) {
-                    alerts.push(`
-                                        <div class="flex items-start mb-2">
-                                            <span class="text-red-500 mr-2">⚠️</span>
-                                            <p>${isMarathi
-                            ? 'एकूण विरघळलेले घन जास्त आहेत. रिव्हर्स ऑस्मोसिस फिल्टरेशन शिफारस केली जाते.'
-                            : 'Total Dissolved Solids are elevated. Reverse osmosis filtration recommended.'}
-                                            </p>
-                                        </div>
-                                    `);
+                  alerts.push(`⚠️ ${isMarathi ? 'एकूण विरघळलेले घन जास्त आहेत. रिव्हर्स ऑस्मोसिस वापरा.' : 'TDS is elevated. Use Reverse Osmosis.'}`);
                 }
-
                 if (results.IRON > 0.3) {
-                    alerts.push(`
-                                        <div class="flex items-start mb-2">
-                                            <span class="text-red-500 mr-2">⚠️</span>
-                                            <p>${isMarathi
-                            ? 'लोह सामग्री इच्छित पातळीपेक्षा जास्त आहे. लोह काढून टाकणारा फिल्टर सुचविला जातो.'
-                            : 'Iron content is above desirable level. Iron removal filter suggested.'}
-                                            </p>
-                                        </div>
-                                    `);
+                  alerts.push(`⚠️ ${isMarathi ? 'लोहाची पातळी जास्त आहे. लोह काढून टाकणारा फिल्टर वापरा.' : 'Iron level is high. Use iron removal filter.'}`);
                 }
-
                 const pHValue = parseFloat(results.PH_VALUE);
                 if (pHValue < 6.5 || pHValue > 8) {
-                    alerts.push(`
-                                        <div class="flex items-start mb-2">
-                                            <span class="text-red-500 mr-2">⚠️</span>
-                                            <p>${isMarathi
-                            ? 'पीएच पातळी इष्टतम श्रेणीबाहेर आहे. पीएच समायोजन आवश्यक आहे.'
-                            : 'pH level is outside optimal range. pH adjustment needed.'}
-                                            </p>
-                                        </div>
-                                    `);
+                  alerts.push(`⚠️ ${isMarathi ? 'पीएच पातळी योग्य नाही. पीएच समायोजन आवश्यक.' : 'pH level is not optimal. pH adjustment needed.'}`);
                 }
-
                 if (alerts.length > 0) {
-                    return alerts.join('');
+                  return alerts.map(a => `<div style="margin-bottom: 5px;">${a}</div>`).join('');
                 } else {
-                    return `
-                                        <div class="flex items-start">
-                                            <span class="text-green-500 mr-2">✓</span>
-                                            <p>
-                                                ${isMarathi
-                            ? 'सर्व प्रमुख पॅरामीटर्स स्वीकार्य श्रेणीमध्ये आहेत. पाण्याची गुणवत्ता चांगली आहे.'
-                            : 'All key parameters are within acceptable ranges. Water quality is good.'}
-                                            </p>
-                                        </div>
-                                    `;
+                  return `<div>✓ ${isMarathi ? 'सर्व पॅरामीटर्स स्वीकार्य श्रेणीमध्ये आहेत. पाण्याची गुणवत्ता चांगली आहे.' : 'All parameters are within acceptable ranges. Water quality is good.'}</div>`;
                 }
-            })()}
-                        </div>
-                    </div>
-
-                    <!-- Footer -->
-                    <!-- Footer -->
-  <div class="mt-10 text-center text-xs text-gray-500">
-    <p>${isMarathi ? 'हा अहवाल केवळ माहितीच्या उद्देशाने आहे' : 'This report is for informational purposes only'}</p>
-    <p>${currentDate}</p>
-  </div>
-  <div class="header-container">
-      <!-- Left side content -->
-      <div class="lab-header-container">
-        <div class="lab-header">
-          <h2>${t.analyst}</h2>
-          <div class="lab-notes">
-            <p class="note-title">${t.note}</p>
-            <ul class="note-items">
-              <li>${t.note1}</li>
-              <li>${t.note2}</li>
-              <li>${t.note3}</li>
-            </ul>
+              })()}
+            </div>
           </div>
-        </div>
-      </div>
-    
-      <!-- Right side content -->
-<div class="authorization-container" style="margin-top: -30px;">
-  <div class="authorization-text">
-     <img src="/signature.png" alt="Signature" style="height: 100px; margin-bottom: 5px; margin-right: 5px; margin-left: 50px;" />
-   <center> ${t.authorizedBy}</center><br>
-    <strong>${t.mdName}<br></strong>
-    <strong>${t.designation}</strong>
-  </div>
-</div>
-</div>
-    
 
-<!-- Top Header Section with Slogan and Icons -->
-<div class="top-slogan-header">
-  
-
-    <!-- Center: Mati Image -->
- 
-
-  <!-- Right: Bharat Image -->
-  <div class="right-icon">
-    <img src="${window.location.origin}/Soil.png" alt="Bharat Icon" class="logo-icon" />
-  </div>
-   <div class="right-icon">
-    <img src="${window.location.origin}/qr.png" alt="Bharat Icon" class="logo-icon" />
-  </div>
-</div>
-
-    
-    <div class="compact-address-container">
-      <div class="address-row">
-        <!-- Reg. Office Address -->
-        <div class="address-block">
-          <div class="address-header">
-            <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <h4 class="address-title">${t.regOfficeAddress}</h4>
-          </div>
-          <p class="address-text">CIII Center for Invention,Innovation,Incubatiopn,3rd Floor,G-buliding YCIS,Powai Naka,Satara</p>
-        </div>
-        
-        <div class="separator">|</div>
-        
-        <!-- Lab Address -->
-        <div class="address-block">
-          <div class="address-header">
-            <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-            </svg>
-            <h4 class="address-title">${t.labAddress}</h4>
-          </div>
-          <p class="address-text">B-3 Dipali Complex, Near Karad Urban Bank, Dahiwadi Rd., Pusegaon. Tal- Khatav, Dist- Satara. MH. 415 502</p>
-        </div>
-        
-        <div class="separator">|</div>
-        
-        <!-- Contact Information -->
-        <div class="address-block">
-          <div class="address-header">
-            <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-            </svg>
-            <h4 class="address-title">${t.contactInfo}</h4>
-          </div>
-          <p class="address-text">
-            <span class="contact-line">
-              <svg class="mini-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-              </svg>
-              +91 93225-26581
-            </span>
-            <span class="contact-line">
-              <svg class="mini-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-              </svg>
-              satarabiochem@gmail.com
-            </span>
-          </p>
-        </div>
-        
-        <div class="separator">|</div>
-        
-        <!-- Website -->
-        <div class="address-block">
-          <div class="address-header">
-            <svg class="address-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
-            </svg>
-            <h4 class="address-title">${t.website}</h4>
-          </div>
-          <p class="address-text">www.satarabiochem.in</p>
-        </div>
-      </div>
-    </div>
-
-     <style>
- .report-section {
-    margin-top: 20px;
-  }
-
-  .section-title {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 12px;
-    text-decoration: underline;
-  }
-
-  .info-columns {
-    display: flex;
-    gap: 40px; /* Space between columns */
-  }
-
-  .info-column {
-    flex: 1;
-  }
-
-  .info-row {
-    display: flex;
-    margin-bottom: 10px;
-  }
-
-  .info-label {
-    width: 50%;
-    font-weight: 600;
-  }
-
-  .info-value {
-    width: 50%;
-  }
-
-
-  
-    .compact-address-container {
-      font-family: Arial, sans-serif;
-      width: 100%;
-      overflow-x: auto;
-      white-space: nowrap;
-      padding: 8px 0;
-      border-top: 1px solid #000;
-      border-bottom: 1px solid #000;
-      margin: 15px 0;
-      font-size: 0;
-      overflow: hidden;
-    }
-    
-    .address-row {
-      display: inline-flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-    
-    .address-block {
-      display: inline-flex;
-      flex-direction: column;
-      white-space: normal;
-      min-width: 180px;
-      font-size: 11px;
-    }
-    
-    .address-header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-    
-    .address-icon {
-      width: 14px;
-      height: 14px;
-      margin-right: 5px;
-      flex-shrink: 0;
-    }
-    
-    .address-title {
-      font-size: 11px;
-      font-weight: bold;
-      margin: 0;
-      color: #000;
-    }
-    
-    .address-text {
-      font-size: 10px;
-      margin: 0;
-      line-height: 1.4;
-      padding-left: 19px;
-    }
-    
-    .separator {
-      color: #999;
-      font-size: 12px;
-      align-self: center;
-      padding: 0 2px;
-    }
-    
-    .contact-line {
-      display: flex;
-      align-items: center;
-      margin-bottom: 3px;
-    }
-    
-    .mini-icon {
-      width: 10px;
-      height: 10px;
-      margin-right: 4px;
-      flex-shrink: 0;
-    }
-    
-    @media (max-width: 768px) {
-      .address-block {
-        min-width: 160px;
-      }
-      .address-title {
-        font-size: 10px;
-      }
-      .address-text {
-        font-size: 9px;
-      }
-      .separator {
-        font-size: 10px;
-      }
-    }
-    
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      max-width: 800px;
-      margin: 20px 0;
-    }
-    
-    .lab-header-container {
-      text-align: left;
-      flex: 1;
-    }
-    
-    .lab-header h2 {
-      font-size: .9rem;
-      color: #000;
-       margin-top: 50px;
-      margin-bottom: 15px;
-      font-weight: bold;
-       font-family: Arial, sans-serif;
-    }
-    
-    .lab-notes {
-      font-size: 0.875rem;
-      color: #333;
-      margin-top: 10px;
-    }
-    
-    .note-title {
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-    
-    .note-items {
-      list-style-type: none;
-      padding-left: 0;
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-    
-    .note-items li {
-      position: relative;
-      padding-left: 15px;
-      margin-bottom: 5px;
-      line-height: 1.5;
-    }
-    
-    .note-items li:before {
-      content: "-";
-      position: absolute;
-      left: 0;
-    }
-    
-    .authorization-container {
-      text-align: right;
-      flex: 1;
-      margin-bottom :50px;
-    }
-    
-    .authorization-text {
-      display: inline-block;
-      text-align: left;
-      font-size: .9rem;
-      color: #000;
-       margin-top: 50px;
-      margin-bottom: 15px;
-    }
-
-.top-slogan-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 10px 0 30px;
-  padding: 0 20px;
-  font-family: Arial, sans-serif;
-}
-
-.slogan-text {
-  flex: 1;
-  text-align: left;
-}
-
-.main-slogan {
-  font-size: 14px;
-  font-weight: bold;
-  color: #000;
-}
-
-.sub-slogan {
-  font-size: 12px;
-  color: #555;
-}
-
-.center-icon {
-  flex: 1;
-  text-align: center;
-}
-
-.right-icon {
-  flex: 1;
-  text-align: right;
-}
-
-.logo-icon {
-  height: 60px;
-  object-fit: contain;
-}
-
-     
-      
-    </style>
+          <!-- Footer with Analyst and Authorization -->
+          <div class="header-container avoid-break">
+            <div class="lab-header-container">
+              <div class="lab-header">
+                <h2>${t.analyst}</h2>
+                <div class="lab-notes">
+                  <p class="note-title">${t.note}</p>
+                  <ul class="note-items">
+                    <li>${t.note1}</li>
+                    <li>${t.note2}</li>
+                    <li>${t.note3}</li>
+                  </ul>
                 </div>
-                
-                <script>
-                    setTimeout(() => {
-                        window.print();
-                        window.close();
-                    }, 500);
-                </script>
-            </body>
-        </html>
-    `);
-        printWindow.document.close();
-    };
+              </div>
+            </div>
+            <div class="authorization-container">
+              <div class="signature-image">
+                <img src="signature.png" alt="Digital Signature" style="height: 70px;" />
+              </div>
+              <div class="authorization-text">
+                ${t.authorizedBy}<br>
+                <strong>${t.mdName}<br></strong>
+                <strong>${t.designation}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slogan Header -->
+          <div class="top-slogan-header avoid-break">
+            <div class="slogan-text">
+              <div class="main-slogan">${isMarathi ? 'निरोगी पाणी, निरोगी आयुष्य' : 'Healthy Water, Healthy Life'}</div>
+            </div>
+            <div class="center-icon">
+              <img src="Soil.png" alt="Soil Icon" class="logo-icon" />
+            </div>
+            <div class="right-icon">
+              <img src="qr.png" alt="QR Code" class="logo-icon" />
+            </div>
+          </div>
+
+          <!-- Address Container -->
+          <div class="compact-address-container avoid-break">
+            <div class="address-row">
+              <div class="address-block">
+                <div class="address-header">
+                  <svg class="address-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <h4 class="address-title">${t.regOfficeAddress}</h4>
+                </div>
+                <p class="address-text">CIII Center for Invention, Innovation, Incubation, 3rd Floor, G-building YCIS, Powai Naka, Satara</p>
+              </div>
+              <div class="separator">|</div>
+              <div class="address-block">
+                <div class="address-header">
+                  <svg class="address-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                  <h4 class="address-title">${t.labAddress}</h4>
+                </div>
+                <p class="address-text">B-3 Dipali Complex, Near Karad Urban Bank, Dahiwadi Rd., Pusegaon. Tal- Khatav, Dist- Satara. MH. 415 502</p>
+              </div>
+              <div class="separator">|</div>
+              <div class="address-block">
+                <div class="address-header">
+                  <svg class="address-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <h4 class="address-title">${t.contactInfo}</h4>
+                </div>
+                <p class="address-text">
+                  <span class="contact-line">📞 +91 93225-26581</span>
+                  <span class="contact-line">✉️ satarabiochem@gmail.com</span>
+                </p>
+              </div>
+              <div class="separator">|</div>
+              <div class="address-block">
+                <div class="address-header">
+                  <svg class="address-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                  </svg>
+                  <h4 class="address-title">${t.website}</h4>
+                </div>
+                <p class="address-text">www.satarabiochem.in</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="print-footer">
+            <p>${isMarathi ? 'हा अहवाल केवळ माहितीच्या उद्देशाने आहे' : 'This report is for informational purposes only'}</p>
+            <p>${currentDate}</p>
+          </div>
+        </div>
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  setTimeout(() => {
+    printWindow.print();
+    printWindow.close();
+  }, 1000);
+};
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-green-50 to-blue-50 p-4 md:p-6 ml-30 ">
