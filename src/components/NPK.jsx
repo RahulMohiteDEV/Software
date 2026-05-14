@@ -45,7 +45,7 @@ const cropData = {
   Safflower: { nitrogen: 50, phosphorus: 25, potassium: 25 },
   Brocoli: { nitrogen: 120, phosphorus: 60, potassium: 60 },
   Strawberry: { nitrogen: 100, phosphorus: 60, potassium: 120 },
-  Pomegranate: { nitrogen: 110, phosphorus: 50, potassium: 110 }
+  Pomegranate: { nitrogen: 110, phosphorus: 50, potassium: 110 },
 };
 
 // Marathi crop names mapping
@@ -101,88 +101,386 @@ const soilTypes = ["Red Soil", "Black Soil", "Medium Soil", "Silt"];
 const soilTypesMarathi = ["लाल माती ", "काळी माती ", "मध्यम माती ", "गाळ"];
 
 const fertilizers = {
-  urea: { name: "Neem coted Urea (46% N)", nameMarathi: "नीम कोटेड युरिया (46% N)", n: 46, p: 0, k: 0 },
-  dap: { name: "DAP (18-46-0)", nameMarathi: "डीएपी (18-46-0)", n: 18, p: 46, k: 0 },
-  mop: { name: "MOP (0-0-60)", nameMarathi: "एमओपी (0-0-60)", n: 0, p: 0, k: 60 },
-  ssp: { name: "SSP (0-16-0)", nameMarathi: "एसएसपी (0-16-0)", n: 0, p: 16, k: 0 },
-  sop: { name: "SOP (0-0-50)", nameMarathi: "एसओपी (0-0-50)", n: 0, p: 0, k: 50 },
-  Ammonium_Sulphate: { name: "Ammonium Sulphate (21-0-0)", nameMarathi: "अमोनियम सल्फेट (21-0-0)", n: 21, p: 0, k: 0 },
-  npk123216: { name: "NPK 12-32-16", nameMarathi: "एनपीके 12-32-16", n: 12, p: 32, k: 16 },
-  npk082424: { name: "NPK 8-24-24", nameMarathi: "एनपीके 8-24-24", n: 8, p: 24, k: 24 },
-  npk092424: { name: "NPK 9-24-24", nameMarathi: "एनपीके 9-24-24", n: 9, p: 24, k: 24 },
-  npk102626: { name: "NPK 10-26-26", nameMarathi: "एनपीके 10-26-26", n: 10, p: 26, k: 26 },
-  npk20200013: { name: "NPK 20-20-00-13", nameMarathi: "एनपीके 20-20-00-13", n: 20, p: 20, k: 0, s: 13 },
-  npk282800: { name: "NPK 28-28-00", nameMarathi: "एनपीके 28-28-00", n: 28, p: 28, k: 0 },
-  npk143514: { name: "NPK 14-35-14", nameMarathi: "एनपीके 14-35-14", n: 14, p: 35, k: 14 },
+  urea: {
+    name: "Neem coted Urea (46% N)",
+    nameMarathi: "नीम कोटेड युरिया (46% N)",
+    n: 46,
+    p: 0,
+    k: 0,
+  },
+  dap: {
+    name: "DAP (18-46-0)",
+    nameMarathi: "डीएपी (18-46-0)",
+    n: 18,
+    p: 46,
+    k: 0,
+  },
+  mop: {
+    name: "MOP (0-0-60)",
+    nameMarathi: "एमओपी (0-0-60)",
+    n: 0,
+    p: 0,
+    k: 60,
+  },
+  ssp: {
+    name: "SSP (0-16-0)",
+    nameMarathi: "एसएसपी (0-16-0)",
+    n: 0,
+    p: 16,
+    k: 0,
+  },
+  sop: {
+    name: "SOP (0-0-50)",
+    nameMarathi: "एसओपी (0-0-50)",
+    n: 0,
+    p: 0,
+    k: 50,
+  },
+  Ammonium_Sulphate: {
+    name: "Ammonium Sulphate (21-0-0)",
+    nameMarathi: "अमोनियम सल्फेट (21-0-0)",
+    n: 21,
+    p: 0,
+    k: 0,
+  },
+  npk123216: {
+    name: "NPK 12-32-16",
+    nameMarathi: "एनपीके 12-32-16",
+    n: 12,
+    p: 32,
+    k: 16,
+  },
+  npk082424: {
+    name: "NPK 8-24-24",
+    nameMarathi: "एनपीके 8-24-24",
+    n: 8,
+    p: 24,
+    k: 24,
+  },
+  npk092424: {
+    name: "NPK 9-24-24",
+    nameMarathi: "एनपीके 9-24-24",
+    n: 9,
+    p: 24,
+    k: 24,
+  },
+  npk102626: {
+    name: "NPK 10-26-26",
+    nameMarathi: "एनपीके 10-26-26",
+    n: 10,
+    p: 26,
+    k: 26,
+  },
+  npk20200013: {
+    name: "NPK 20-20-00-13",
+    nameMarathi: "एनपीके 20-20-00-13",
+    n: 20,
+    p: 20,
+    k: 0,
+    s: 13,
+  },
+  npk282800: {
+    name: "NPK 28-28-00",
+    nameMarathi: "एनपीके 28-28-00",
+    n: 28,
+    p: 28,
+    k: 0,
+  },
+  npk143514: {
+    name: "NPK 14-35-14",
+    nameMarathi: "एनपीके 14-35-14",
+    n: 14,
+    p: 35,
+    k: 14,
+  },
 
   // Water Soluble Fertilizers
-  map: { name: "MAP (12-61-00)", nameMarathi: "एमएपी (12-61-00)", n: 12, p: 61, k: 0 },
-  mkp: { name: "MKP (00-52-34)", nameMarathi: "एमकेपी (00-52-34)", n: 0, p: 52, k: 34 },
-  mop_ws: { name: "MOP Water Soluble (00-00-50)", nameMarathi: "एमओपी वॉटर सोल्युबल (00-00-50)", n: 0, p: 0, k: 50 },
-  pn: { name: "PN (13-00-45)", nameMarathi: "पीएन (13-00-45)", n: 13, p: 0, k: 45 },
-  npk191919: { name: "NPK (19-19-19)", nameMarathi: "एनपीके (19-19-19)", n: 19, p: 19, k: 19 },
-  npk134013: { name: "NPK (13-40-13)", nameMarathi: "एनपीके (13-40-13)", n: 13, p: 40, k: 13 },
-  npks00002308: { name: "NPKS (00-00-23-08)", nameMarathi: "एनपीकेएस (00-00-23-08)", n: 0, p: 0, k: 23, s: 8 }
+  map: {
+    name: "MAP (12-61-00)",
+    nameMarathi: "एमएपी (12-61-00)",
+    n: 12,
+    p: 61,
+    k: 0,
+  },
+  mkp: {
+    name: "MKP (00-52-34)",
+    nameMarathi: "एमकेपी (00-52-34)",
+    n: 0,
+    p: 52,
+    k: 34,
+  },
+  mop_ws: {
+    name: "MOP Water Soluble (00-00-50)",
+    nameMarathi: "एमओपी वॉटर सोल्युबल (00-00-50)",
+    n: 0,
+    p: 0,
+    k: 50,
+  },
+  pn: {
+    name: "PN (13-00-45)",
+    nameMarathi: "पीएन (13-00-45)",
+    n: 13,
+    p: 0,
+    k: 45,
+  },
+  npk191919: {
+    name: "NPK (19-19-19)",
+    nameMarathi: "एनपीके (19-19-19)",
+    n: 19,
+    p: 19,
+    k: 19,
+  },
+  npk134013: {
+    name: "NPK (13-40-13)",
+    nameMarathi: "एनपीके (13-40-13)",
+    n: 13,
+    p: 40,
+    k: 13,
+  },
+  npks00002308: {
+    name: "NPKS (00-00-23-08)",
+    nameMarathi: "एनपीकेएस (00-00-23-08)",
+    n: 0,
+    p: 0,
+    k: 23,
+    s: 8,
+  },
 };
 
 const straightFertilizers = [
-  { id: "urea", label: "Neem Coated Urea (46% N)", labelMarathi: "नीम कोटेड युरिया  (46% N)", color: "bg-blue-100 border-blue-300" },
-  { id: "ssp", label: "SSP (Phosphorus)", labelMarathi: "एसएसपी (फॉस्फरस)", color: "bg-green-100 border-green-300" },
-  { id: "mop", label: "MOP (Potassium)", labelMarathi: "एमओपी (पोटॅशियम)", color: "bg-yellow-100 border-yellow-300" },
-  { id: "sop", label: "SOP (Potassium)", labelMarathi: "एसओपी (पोटॅशियम)", color: "bg-yellow-100 border-yellow-300" },
-  { id: "Ammonium_Sulphate", label: "Ammonium Sulphate (Nitrogen)", labelMarathi: "अमोनियम सल्फेट (नायट्रोजन)", color: "bg-yellow-100 border-yellow-300" },
+  {
+    id: "urea",
+    label: "Neem Coated Urea (46% N)",
+    labelMarathi: "नीम कोटेड युरिया  (46% N)",
+    color: "bg-blue-100 border-blue-300",
+  },
+  {
+    id: "ssp",
+    label: "SSP (Phosphorus)",
+    labelMarathi: "एसएसपी (फॉस्फरस)",
+    color: "bg-green-100 border-green-300",
+  },
+  {
+    id: "mop",
+    label: "MOP (Potassium)",
+    labelMarathi: "एमओपी (पोटॅशियम)",
+    color: "bg-yellow-100 border-yellow-300",
+  },
+  {
+    id: "sop",
+    label: "SOP (Potassium)",
+    labelMarathi: "एसओपी (पोटॅशियम)",
+    color: "bg-yellow-100 border-yellow-300",
+  },
+  {
+    id: "Ammonium_Sulphate",
+    label: "Ammonium Sulphate (Nitrogen)",
+    labelMarathi: "अमोनियम सल्फेट (नायट्रोजन)",
+    color: "bg-yellow-100 border-yellow-300",
+  },
 ];
 
 const complexFertilizers = [
-  { id: "dap", label: "DAP (Phosphorus)", labelMarathi: "डीएपी (फॉस्फरस)", color: "bg-green-100 border-green-300" },
-  { id: "npk123216", label: "NPK 12-32-16", labelMarathi: "एनपीके 12-32-16", color: "bg-purple-100 border-purple-300" },
-  { id: "npk092424", label: "NPK 9-24-24", labelMarathi: "एनपीके 9-24-24", color: "bg-green-100 border-green-300" },
-  { id: "npk082424", label: "NPK 8-24-24", labelMarathi: "एनपीके 8-24-24", color: "bg-yellow-100 border-yellow-300" },
-  { id: "npk102626", label: "NPK 10-26-26", labelMarathi: "एनपीके 10-26-26", color: "bg-purple-100 border-purple-300" },
-  { id: "npk20200013", label: "NPK 20-20-00-13", labelMarathi: "एनपीके 20-20-00-13", color: "bg-green-100 border-green-300" },
-  { id: "npk282800", label: "NPK 28-28-00", labelMarathi: "एनपीके 28-28-00", color: "bg-yellow-100 border-yellow-300" },
-  { id: "npk143514", label: "NPK 14-35-14", labelMarathi: "एनपीके 14-35-14", color: "bg-blue-100 border-blue-300" },
+  {
+    id: "dap",
+    label: "DAP (Phosphorus)",
+    labelMarathi: "डीएपी (फॉस्फरस)",
+    color: "bg-green-100 border-green-300",
+  },
+  {
+    id: "npk123216",
+    label: "NPK 12-32-16",
+    labelMarathi: "एनपीके 12-32-16",
+    color: "bg-purple-100 border-purple-300",
+  },
+  {
+    id: "npk092424",
+    label: "NPK 9-24-24",
+    labelMarathi: "एनपीके 9-24-24",
+    color: "bg-green-100 border-green-300",
+  },
+  {
+    id: "npk082424",
+    label: "NPK 8-24-24",
+    labelMarathi: "एनपीके 8-24-24",
+    color: "bg-yellow-100 border-yellow-300",
+  },
+  {
+    id: "npk102626",
+    label: "NPK 10-26-26",
+    labelMarathi: "एनपीके 10-26-26",
+    color: "bg-purple-100 border-purple-300",
+  },
+  {
+    id: "npk20200013",
+    label: "NPK 20-20-00-13",
+    labelMarathi: "एनपीके 20-20-00-13",
+    color: "bg-green-100 border-green-300",
+  },
+  {
+    id: "npk282800",
+    label: "NPK 28-28-00",
+    labelMarathi: "एनपीके 28-28-00",
+    color: "bg-yellow-100 border-yellow-300",
+  },
+  {
+    id: "npk143514",
+    label: "NPK 14-35-14",
+    labelMarathi: "एनपीके 14-35-14",
+    color: "bg-blue-100 border-blue-300",
+  },
 ];
 
 // Separate section for Water Soluble Fertilizers
 const waterSolubleFertilizers = [
-  { id: "map", label: "MAP Water Soluble (12-61-00)", labelMarathi: "एमएपी वॉटर सोल्युबल (12-61-00)", color: "bg-teal-100 border-teal-300" },
-  { id: "mkp", label: "MKP Water Soluble (00-52-34)", labelMarathi: "एमकेपी वॉटर सोल्युबल (00-52-34)", color: "bg-indigo-100 border-indigo-300" },
-  { id: "mop_ws", label: "MOP Water Soluble (00-00-50)", labelMarathi: "एमओपी वॉटर सोल्युबल (00-00-50)", color: "bg-amber-100 border-amber-300" },
-  { id: "pn", label: "PN Water Soluble (13-00-45)", labelMarathi: "पीएन वॉटर सोल्युबल (13-00-45)", color: "bg-cyan-100 border-cyan-300" },
-  { id: "npk191919", label: "NPK Water Soluble (19-19-19)", labelMarathi: "एनपीके वॉटर सोल्युबल (19-19-19)", color: "bg-pink-100 border-pink-300" },
-  { id: "npk134013", label: "NPK Water Soluble (13-40-13)", labelMarathi: "एनपीके वॉटर सोल्युबल (13-40-13)", color: "bg-orange-100 border-orange-300" },
-  { id: "npks00002308", label: "NPKS Water Soluble (00-00-23-08)", labelMarathi: "एनपीकेएस वॉटर सोल्युबल (00-00-23-08)", color: "bg-lime-100 border-lime-300" }
+  {
+    id: "map",
+    label: "MAP Water Soluble (12-61-00)",
+    labelMarathi: "एमएपी वॉटर सोल्युबल (12-61-00)",
+    color: "bg-teal-100 border-teal-300",
+  },
+  {
+    id: "mkp",
+    label: "MKP Water Soluble (00-52-34)",
+    labelMarathi: "एमकेपी वॉटर सोल्युबल (00-52-34)",
+    color: "bg-indigo-100 border-indigo-300",
+  },
+  {
+    id: "mop_ws",
+    label: "MOP Water Soluble (00-00-50)",
+    labelMarathi: "एमओपी वॉटर सोल्युबल (00-00-50)",
+    color: "bg-amber-100 border-amber-300",
+  },
+  {
+    id: "pn",
+    label: "PN Water Soluble (13-00-45)",
+    labelMarathi: "पीएन वॉटर सोल्युबल (13-00-45)",
+    color: "bg-cyan-100 border-cyan-300",
+  },
+  {
+    id: "npk191919",
+    label: "NPK Water Soluble (19-19-19)",
+    labelMarathi: "एनपीके वॉटर सोल्युबल (19-19-19)",
+    color: "bg-pink-100 border-pink-300",
+  },
+  {
+    id: "npk134013",
+    label: "NPK Water Soluble (13-40-13)",
+    labelMarathi: "एनपीके वॉटर सोल्युबल (13-40-13)",
+    color: "bg-orange-100 border-orange-300",
+  },
+  {
+    id: "npks00002308",
+    label: "NPKS Water Soluble (00-00-23-08)",
+    labelMarathi: "एनपीकेएस वॉटर सोल्युबल (00-00-23-08)",
+    color: "bg-lime-100 border-lime-300",
+  },
 ];
 
 const soilLevels = {
   nitrogen: [
-    { level: 1, range: "0 - 140", recommendation: "Very low - 66% more fertilizer than recommended", recommendationMarathi: "खूप कमी - शिफारस केलेल्यापेक्षा 66% जास्त खत" },
-    { level: 2, range: "140 - 280", recommendation: "Low - 33% more fertilizer than recommended", recommendationMarathi: "कमी - शिफारस केलेल्यापेक्षा 33% जास्त खत" },
-    { level: 3, range: "280 - 560", recommendation: "Medium - As recommended", recommendationMarathi: "मध्यम - शिफारसीनुसार" },
-    { level: 4, range: "560 - 700", recommendation: "High - 33% less fertilizer than recommended", recommendationMarathi: "जास्त - शिफारस केलेल्यापेक्षा 33% कमी खत" },
-    { level: 5, range: "700+", recommendation: "Very high - 66% less fertilizer than recommended", recommendationMarathi: "खूप जास्त - शिफारस केलेल्यापेक्षा 66% कमी खत" }
+    {
+      level: 1,
+      range: "0 - 140",
+      recommendation: "Very low - 66% more fertilizer than recommended",
+      recommendationMarathi: "खूप कमी - शिफारस केलेल्यापेक्षा 66% जास्त खत",
+    },
+    {
+      level: 2,
+      range: "140 - 280",
+      recommendation: "Low - 33% more fertilizer than recommended",
+      recommendationMarathi: "कमी - शिफारस केलेल्यापेक्षा 33% जास्त खत",
+    },
+    {
+      level: 3,
+      range: "280 - 560",
+      recommendation: "Medium - As recommended",
+      recommendationMarathi: "मध्यम - शिफारसीनुसार",
+    },
+    {
+      level: 4,
+      range: "560 - 700",
+      recommendation: "High - 33% less fertilizer than recommended",
+      recommendationMarathi: "जास्त - शिफारस केलेल्यापेक्षा 33% कमी खत",
+    },
+    {
+      level: 5,
+      range: "700+",
+      recommendation: "Very high - 66% less fertilizer than recommended",
+      recommendationMarathi: "खूप जास्त - शिफारस केलेल्यापेक्षा 66% कमी खत",
+    },
   ],
   phosphorus: [
-    { level: 1, range: "<5", recommendation: "Very low - 66% more fertilizer than recommended", recommendationMarathi: "खूप कमी - शिफारस केलेल्यापेक्षा 66% जास्त खत" },
-    { level: 2, range: "5 - 10", recommendation: "Low - 33% more fertilizer than recommended", recommendationMarathi: "कमी - शिफारस केलेल्यापेक्षा 33% जास्त खत" },
-    { level: 3, range: "10 - 25", recommendation: "Medium - As recommended", recommendationMarathi: "मध्यम - शिफारसीनुसार" },
-    { level: 4, range: "25 - 40", recommendation: "High - 33% less fertilizer than recommended", recommendationMarathi: "जास्त - शिफारस केलेल्यापेक्षा 33% कमी खत" },
-    { level: 5, range: "40+", recommendation: "Very high - 66% less fertilizer than recommended", recommendationMarathi: "खूप जास्त - शिफारस केलेल्यापेक्षा 66% कमी खत" }
+    {
+      level: 1,
+      range: "<5",
+      recommendation: "Very low - 66% more fertilizer than recommended",
+      recommendationMarathi: "खूप कमी - शिफारस केलेल्यापेक्षा 66% जास्त खत",
+    },
+    {
+      level: 2,
+      range: "5 - 10",
+      recommendation: "Low - 33% more fertilizer than recommended",
+      recommendationMarathi: "कमी - शिफारस केलेल्यापेक्षा 33% जास्त खत",
+    },
+    {
+      level: 3,
+      range: "10 - 25",
+      recommendation: "Medium - As recommended",
+      recommendationMarathi: "मध्यम - शिफारसीनुसार",
+    },
+    {
+      level: 4,
+      range: "25 - 40",
+      recommendation: "High - 33% less fertilizer than recommended",
+      recommendationMarathi: "जास्त - शिफारस केलेल्यापेक्षा 33% कमी खत",
+    },
+    {
+      level: 5,
+      range: "40+",
+      recommendation: "Very high - 66% less fertilizer than recommended",
+      recommendationMarathi: "खूप जास्त - शिफारस केलेल्यापेक्षा 66% कमी खत",
+    },
   ],
   potassium: [
-    { level: 1, range: "<60", recommendation: "Very low - 66% more fertilizer than recommended", recommendationMarathi: "खूप कमी - शिफारस केलेल्यापेक्षा 66% जास्त खत" },
-    { level: 2, range: "60 - 120", recommendation: "Low - 33% more fertilizer than recommended", recommendationMarathi: "कमी - शिफारस केलेल्यापेक्षा 33% जास्त खत" },
-    { level: 3, range: "120 - 280", recommendation: "Medium - As recommended", recommendationMarathi: "मध्यम - शिफारसीनुसार" },
-    { level: 4, range: "280 - 560", recommendation: "High - 33% less fertilizer than recommended", recommendationMarathi: "जास्त - शिफारस केलेल्यापेक्षा 33% कमी खत" },
-    { level: 5, range: "560+", recommendation: "Very high - 66% less fertilizer than recommended", recommendationMarathi: "खूप जास्त - शिफारस केलेल्यापेक्षा 66% कमी खत" }
-  ]
+    {
+      level: 1,
+      range: "<60",
+      recommendation: "Very low - 66% more fertilizer than recommended",
+      recommendationMarathi: "खूप कमी - शिफारस केलेल्यापेक्षा 66% जास्त खत",
+    },
+    {
+      level: 2,
+      range: "60 - 120",
+      recommendation: "Low - 33% more fertilizer than recommended",
+      recommendationMarathi: "कमी - शिफारस केलेल्यापेक्षा 33% जास्त खत",
+    },
+    {
+      level: 3,
+      range: "120 - 280",
+      recommendation: "Medium - As recommended",
+      recommendationMarathi: "मध्यम - शिफारसीनुसार",
+    },
+    {
+      level: 4,
+      range: "280 - 560",
+      recommendation: "High - 33% less fertilizer than recommended",
+      recommendationMarathi: "जास्त - शिफारस केलेल्यापेक्षा 33% कमी खत",
+    },
+    {
+      level: 5,
+      range: "560+",
+      recommendation: "Very high - 66% less fertilizer than recommended",
+      recommendationMarathi: "खूप जास्त - शिफारस केलेल्यापेक्षा 66% कमी खत",
+    },
+  ],
 };
 
 const translations = {
   en: {
     title: "Smart Fertilizer Calculator",
-    subtitle: "Optimize your crop yield with precise fertilizer recommendations based on soil analysis and crop requirements",
+    subtitle:
+      "Optimize your crop yield with precise fertilizer recommendations based on soil analysis and crop requirements",
     selectCrop: "Select Crop",
     soilType: "Soil Type",
     area: "Area (hectares)",
@@ -191,7 +489,8 @@ const translations = {
     nitrogen: "Nitrogen (kg/ha)",
     phosphorus: "Phosphorus (kg/ha)",
     potassium: "Potassium (kg/ha)",
-    soilAnalysisNote: "Enter your soil test results to calculate precise fertilizer requirements.",
+    soilAnalysisNote:
+      "Enter your soil test results to calculate precise fertilizer requirements.",
     selectFertilizers: "Select Fertilizers",
     straightFertilizers: "Straight Fertilizers",
     complexFertilizers: "Complex Fertilizers",
@@ -218,7 +517,8 @@ const translations = {
     no: "No (Using standard values)",
     soilAnalysisRecommendations: "Soil Analysis Recommendations",
     micronutrientRecommendations: "Micronutrient Recommendations",
-    secondaryMicronutrientRecommendations: "Secondary Micronutrient Recommendations",
+    secondaryMicronutrientRecommendations:
+      "Secondary Micronutrient Recommendations",
     generatedBy: "Generated by Fertilizer Calculator on",
     analyst: "Analyst / Lab In charge",
     note: "Note:",
@@ -231,16 +531,20 @@ const translations = {
     labAddress: "Lab Address",
     contactInfo: "Contact No. & Email Id",
     website: "Website",
-    ureaNote: " Urea should be applied in three stages: 50% as a basal dose at sowing, 25% as the first top dressing, and 25% as the second top dressing.",
+    ureaNote:
+      " Urea should be applied in three stages: 50% as a basal dose at sowing, 25% as the first top dressing, and 25% as the second top dressing.",
     deficitCalculation: "Deficit Calculation",
     cropRequirement: "Crop Requirement",
     soilAvailable: "Soil Available",
     deficit: "Deficit",
     formula: "Fertilizer Dose = Deficit × 100 / Nutrient % in fertilizer",
+    fertilizerNote:
+      "Note:- Use any of these fertilizer recommendations available at your agricultural service center.",
   },
   mr: {
     title: "स्मार्ट खत कॅल्क्युलेटर",
-    subtitle: "मातीच्या विश्लेषण आणि पिकाच्या गरजांवर आधारित अचूक खत शिफारसीसह आपल्या पिकाच्या उत्पादनाचे अनुकूलन करा",
+    subtitle:
+      "मातीच्या विश्लेषण आणि पिकाच्या गरजांवर आधारित अचूक खत शिफारसीसह आपल्या पिकाच्या उत्पादनाचे अनुकूलन करा",
     selectCrop: "पिक निवडा",
     soilType: "मातीचा प्रकार",
     area: "क्षेत्रफळ (हेक्टर)",
@@ -249,7 +553,8 @@ const translations = {
     nitrogen: "नायट्रोजन (किलो/हेक्टर)",
     phosphorus: "फॉस्फरस (किलो/हेक्टर)",
     potassium: "पोटॅशियम (किलो/हेक्टर)",
-    soilAnalysisNote: "अचूक खताच्या गरजा मोजण्यासाठी आपले माती चाचणी परिणाम प्रविष्ट करा.",
+    soilAnalysisNote:
+      "अचूक खताच्या गरजा मोजण्यासाठी आपले माती चाचणी परिणाम प्रविष्ट करा.",
     selectFertilizers: "खते निवडा",
     straightFertilizers: "सरळ खते",
     complexFertilizers: "कॉम्प्लेक्स खते",
@@ -280,7 +585,8 @@ const translations = {
     analyst: "विश्लेषक / प्रयोगशाळा प्रभारी",
     note: "टीप:",
     note1: "हा अहवाल न्यायालयीन हेतूसाठी वापरला जाऊ शकत नाही.",
-    note2: "परिणाम केवळ चाचणी केलेल्या नमुन्यांना संदर्भित करतात आणि लागू आहेत.",
+    note2:
+      "परिणाम केवळ चाचणी केलेल्या नमुन्यांना संदर्भित करतात आणि लागू आहेत.",
     note3: "आमच्या प्रयोगशाळेची जबाबदारी इनव्हॉइस रकमेपर्यंत मर्यादित आहे.",
     authorizedBy: "अधिकृत केले",
     md: "व्यवस्थापकीय संचालक",
@@ -289,43 +595,110 @@ const translations = {
     contactInfo: "संपर्क क्रमांक आणि ईमेल आयडी",
     website: "वेबसाइट",
     healthySoil: "निरोगी माती निरोगी जीवनासाठी",
-    ureaNote: " युरिया तीन टप्प्यांमध्ये टाकावा: ५०% पेरणीवेळी बेसल डोस म्हणून, २५% पहिला टॉप ड्रेसिंग म्हणून, आणि २५% दुसरा टॉप ड्रेसिंग म्हणून.",
+    ureaNote:
+      " युरिया तीन टप्प्यांमध्ये टाकावा: ५०% पेरणीवेळी बेसल डोस म्हणून, २५% पहिला टॉप ड्रेसिंग म्हणून, आणि २५% दुसरा टॉप ड्रेसिंग म्हणून.",
     deficitCalculation: "तूट गणना",
     cropRequirement: "पिकाची गरज",
     soilAvailable: "मातीत उपलब्ध",
     deficit: "तूट",
     formula: "खत डोस = तूट × 100 / खतातील पोषक %",
-  }
+    fertilizerNote:
+      "सूचना:- यापैकी कोणतेही एक शिफारस जी तुमच्या कृषी सेवा केंद्रात उपलब्ध असेल ती वापरावी. ",
+  },
 };
 
 const micronutrientsData = {
   en: [
-    { nutrient: "Iron", range: "4.50 ppm", recommendation: "Ferrous sulphate 25 to 30 kg/ha" },
-    { nutrient: "Manganese", range: "2.00 ppm", recommendation: "Manganese sulphate 10 to 25 kg/ha" },
-    { nutrient: "Zinc", range: "0.60 ppm", recommendation: "Zinc Sulphate 25 to 30 kg/ha" },
-    { nutrient: "Copper", range: "0.20 ppm", recommendation: "Copper Sulphate 10 to 25 kg/ha" },
-    { nutrient: "Boron", range: "0.5 to 1 ppm", recommendation: "Borox 5 to 10 kg/ha" }
+    {
+      nutrient: "Iron",
+      range: "4.50 ppm",
+      recommendation: "Ferrous sulphate 25 to 30 kg/ha",
+    },
+    {
+      nutrient: "Manganese",
+      range: "2.00 ppm",
+      recommendation: "Manganese sulphate 10 to 25 kg/ha",
+    },
+    {
+      nutrient: "Zinc",
+      range: "0.60 ppm",
+      recommendation: "Zinc Sulphate 25 to 30 kg/ha",
+    },
+    {
+      nutrient: "Copper",
+      range: "0.20 ppm",
+      recommendation: "Copper Sulphate 10 to 25 kg/ha",
+    },
+    {
+      nutrient: "Boron",
+      range: "0.5 to 1 ppm",
+      recommendation: "Borox 5 to 10 kg/ha",
+    },
   ],
   mr: [
-    { nutrient: "लोह", range: "4.50 ppm", recommendation: "फेरस सल्फेट 25 ते 30 किलो/हेक्टर" },
-    { nutrient: "मॅंगनीज", range: "2.00 ppm", recommendation: "मॅंगनीज सल्फेट 10 ते 25 किलो/हेक्टर" },
-    { nutrient: "जस्त", range: "0.60 ppm", recommendation: "झिंक सल्फेट 25 ते 30 किलो/हेक्टर" },
-    { nutrient: "तांबे", range: "0.20 ppm", recommendation: "कॉपर सल्फेट 10 ते 25 किलो/हेक्टर" },
-    { nutrient: "बोरॉन", range: "0.5 ते 1 ppm", recommendation: "बोरॉक्स 5 ते 10 किलो/हेक्टर" }
-  ]
+    {
+      nutrient: "लोह",
+      range: "4.50 ppm",
+      recommendation: "फेरस सल्फेट 25 ते 30 किलो/हेक्टर",
+    },
+    {
+      nutrient: "मॅंगनीज",
+      range: "2.00 ppm",
+      recommendation: "मॅंगनीज सल्फेट 10 ते 25 किलो/हेक्टर",
+    },
+    {
+      nutrient: "जस्त",
+      range: "0.60 ppm",
+      recommendation: "झिंक सल्फेट 25 ते 30 किलो/हेक्टर",
+    },
+    {
+      nutrient: "तांबे",
+      range: "0.20 ppm",
+      recommendation: "कॉपर सल्फेट 10 ते 25 किलो/हेक्टर",
+    },
+    {
+      nutrient: "बोरॉन",
+      range: "0.5 ते 1 ppm",
+      recommendation: "बोरॉक्स 5 ते 10 किलो/हेक्टर",
+    },
+  ],
 };
 
 const secondaryMicronutrientsData = {
   en: [
-    { nutrient: "Calcium", range: "65 to 80 meq", recommendation: "Gypsum or Calcium Nitrate 50 to 100 kg/ha" },
-    { nutrient: "Sulpher", range: "10 to 20 ppm", recommendation: "Sulfur 20 to 40 kg/ha" },
-    { nutrient: "Magnesium", range: "10 to 15 meq", recommendation: "Magnesium Sulphate 10 to 20 kg/ha" }
+    {
+      nutrient: "Calcium",
+      range: "65 to 80 meq",
+      recommendation: "Gypsum or Calcium Nitrate 50 to 100 kg/ha",
+    },
+    {
+      nutrient: "Sulpher",
+      range: "10 to 20 ppm",
+      recommendation: "Sulfur 20 to 40 kg/ha",
+    },
+    {
+      nutrient: "Magnesium",
+      range: "10 to 15 meq",
+      recommendation: "Magnesium Sulphate 10 to 20 kg/ha",
+    },
   ],
   mr: [
-    { nutrient: "कॅल्शियम", range: "65 ते 80 meq", recommendation: "जिप्सम किंवा कॅल्शियम नायट्रेट 50 ते 100 किलो/हेक्टर" },
-    { nutrient: "सल्फर", range: "10 ते 20 ppm", recommendation: "सल्फर 20 ते 40 किलो/हेक्टर" },
-    { nutrient: "मॅग्नेशियम", range: "10 ते 15 meq", recommendation: "मॅग्नेशियम सल्फेट 10 ते 20 किलो/हेक्टर" }
-  ]
+    {
+      nutrient: "कॅल्शियम",
+      range: "65 ते 80 meq",
+      recommendation: "जिप्सम किंवा कॅल्शियम नायट्रेट 50 ते 100 किलो/हेक्टर",
+    },
+    {
+      nutrient: "सल्फर",
+      range: "10 ते 20 ppm",
+      recommendation: "सल्फर 20 ते 40 किलो/हेक्टर",
+    },
+    {
+      nutrient: "मॅग्नेशियम",
+      range: "10 ते 15 meq",
+      recommendation: "मॅग्नेशियम सल्फेट 10 ते 20 किलो/हेक्टर",
+    },
+  ],
 };
 
 const getNutrientLevel = (nutrient, value) => {
@@ -341,7 +714,8 @@ const getNutrientLevel = (nutrient, value) => {
     if (value <= 25) return soilLevels.phosphorus[2];
     if (value <= 40) return soilLevels.phosphorus[3];
     return soilLevels.phosphorus[4];
-  } else { // potassium
+  } else {
+    // potassium
     if (value < 60) return soilLevels.potassium[0];
     if (value <= 120) return soilLevels.potassium[1];
     if (value <= 280) return soilLevels.potassium[2];
@@ -375,14 +749,14 @@ const FertilizerCalculator = () => {
     pn: false,
     npk191919: false,
     npk134013: false,
-    npks00002308: false
+    npks00002308: false,
   });
 
   const [useSoilAnalysis, setUseSoilAnalysis] = useState(false);
   const [soilAnalysis, setSoilAnalysis] = useState({
     nitrogen: "",
     phosphorus: "",
-    potassium: ""
+    potassium: "",
   });
   const [activeTab, setActiveTab] = useState("macronutrients");
   const [language, setLanguage] = useState("en");
@@ -393,7 +767,7 @@ const FertilizerCalculator = () => {
 
   // Function to get display name based on language
   const getCropDisplayName = (cropKey) => {
-    if (language === 'mr') {
+    if (language === "mr") {
       return cropNamesMarathi[cropKey] || cropKey;
     }
     return cropKey.charAt(0).toUpperCase() + cropKey.slice(1);
@@ -424,7 +798,7 @@ const FertilizerCalculator = () => {
     const { name, value } = event.target;
     setSoilAnalysis({
       ...soilAnalysis,
-      [name]: value === "" ? "" : Number(value)
+      [name]: value === "" ? "" : Number(value),
     });
   };
 
@@ -434,32 +808,43 @@ const FertilizerCalculator = () => {
 
   // Calculate deficit based on soil analysis using the formula: Deficit = Crop requirement - Soil available
   const calculateDeficit = () => {
-    const npk = cropData[selectedCrop] || { nitrogen: 0, phosphorus: 0, potassium: 0 };
+    const npk = cropData[selectedCrop] || {
+      nitrogen: 0,
+      phosphorus: 0,
+      potassium: 0,
+    };
 
-    if (!useSoilAnalysis || !soilAnalysis.nitrogen || !soilAnalysis.phosphorus || !soilAnalysis.potassium) {
+    if (
+      !useSoilAnalysis ||
+      !soilAnalysis.nitrogen ||
+      !soilAnalysis.phosphorus ||
+      !soilAnalysis.potassium
+    ) {
       return {
         nitrogen: npk.nitrogen,
         phosphorus: npk.phosphorus,
-        potassium: npk.potassium
+        potassium: npk.potassium,
       };
     }
 
     return {
       nitrogen: Math.max(0, npk.nitrogen - soilAnalysis.nitrogen),
       phosphorus: Math.max(0, npk.phosphorus - soilAnalysis.phosphorus),
-      potassium: Math.max(0, npk.potassium - soilAnalysis.potassium)
+      potassium: Math.max(0, npk.potassium - soilAnalysis.potassium),
     };
   };
 
   // Original calculation for straight and complex fertilizers
   const calculateFertilizer = (nutrientRequired, fertilizerContent) => {
-    return ((nutrientRequired * totalArea * 100) / fertilizerContent).toFixed(2);
+    return ((nutrientRequired * totalArea * 100) / fertilizerContent).toFixed(
+      2,
+    );
   };
 
   const calculateUreaAndDAP = (nitrogenReq, phosphorusReq) => {
     const dapForP = (phosphorusReq * totalArea * 100) / fertilizers.dap.p;
     const nitrogenFromDAP = (dapForP * fertilizers.dap.n) / 100;
-    const remainingN = (nitrogenReq * totalArea) - nitrogenFromDAP;
+    const remainingN = nitrogenReq * totalArea - nitrogenFromDAP;
     const ureaForN = (remainingN * 100) / fertilizers.urea.n;
     return {
       urea: ureaForN.toFixed(2),
@@ -467,47 +852,61 @@ const FertilizerCalculator = () => {
     };
   };
 
-  const calculateNPK = (type = '123216') => {
+  const calculateNPK = (type = "123216") => {
     const target_N = npk.nitrogen * totalArea;
     const target_P = npk.phosphorus * totalArea;
     const target_K = npk.potassium * totalArea;
 
     const npkCompositions = {
-      '123216': { n: 12, p: 32, k: 16 },
-      '082424': { n: 8, p: 24, k: 24 },
-      '092424': { n: 9, p: 24, k: 24 },
-      '102626': { n: 10, p: 26, k: 26 },
-      '282800': { n: 28, p: 28, k: 0 },
-      '143514': { n: 14, p: 35, k: 14 },
-      '20200013': { n: 20, p: 20, k: 0, s: 13 },
+      123216: { n: 12, p: 32, k: 16 },
+      "082424": { n: 8, p: 24, k: 24 },
+      "092424": { n: 9, p: 24, k: 24 },
+      102626: { n: 10, p: 26, k: 26 },
+      282800: { n: 28, p: 28, k: 0 },
+      143514: { n: 14, p: 35, k: 14 },
+      20200013: { n: 20, p: 20, k: 0, s: 13 },
 
       // Water Soluble Fertilizers
-      'map': { n: 12, p: 61, k: 0 },
-      'mkp': { n: 0, p: 52, k: 34 },
-      'mop_ws': { n: 0, p: 0, k: 50 },
-      'pn': { n: 13, p: 0, k: 45 },
-      '191919': { n: 19, p: 19, k: 19 },
-      '134013': { n: 13, p: 40, k: 13 },
-      'npks00002308': { n: 0, p: 0, k: 23, s: 8 }
+      map: { n: 12, p: 61, k: 0 },
+      mkp: { n: 0, p: 52, k: 34 },
+      mop_ws: { n: 0, p: 0, k: 50 },
+      pn: { n: 13, p: 0, k: 45 },
+      191919: { n: 19, p: 19, k: 19 },
+      134013: { n: 13, p: 40, k: 13 },
+      npks00002308: { n: 0, p: 0, k: 23, s: 8 },
     };
 
     const { n: N_percent, p: P_percent, k: K_percent } = npkCompositions[type];
 
     // For water soluble fertilizers, calculate based on the limiting nutrient
     let baseFertilizer;
-    if (type === 'map') {
+    if (type === "map") {
       baseFertilizer = (target_P * 100) / P_percent;
-    } else if (type === 'mkp') {
-      baseFertilizer = Math.max((target_P * 100) / P_percent, (target_K * 100) / K_percent);
-    } else if (type === 'mop_ws') {
+    } else if (type === "mkp") {
+      baseFertilizer = Math.max(
+        (target_P * 100) / P_percent,
+        (target_K * 100) / K_percent,
+      );
+    } else if (type === "mop_ws") {
       baseFertilizer = (target_K * 100) / K_percent;
-    } else if (type === 'pn') {
-      baseFertilizer = Math.max((target_N * 100) / N_percent, (target_K * 100) / K_percent);
-    } else if (type === '191919') {
-      baseFertilizer = Math.max((target_N * 100) / N_percent, (target_P * 100) / P_percent, (target_K * 100) / K_percent);
-    } else if (type === '134013') {
-      baseFertilizer = Math.max((target_N * 100) / N_percent, (target_P * 100) / P_percent, (target_K * 100) / K_percent);
-    } else if (type === 'npks00002308') {
+    } else if (type === "pn") {
+      baseFertilizer = Math.max(
+        (target_N * 100) / N_percent,
+        (target_K * 100) / K_percent,
+      );
+    } else if (type === "191919") {
+      baseFertilizer = Math.max(
+        (target_N * 100) / N_percent,
+        (target_P * 100) / P_percent,
+        (target_K * 100) / K_percent,
+      );
+    } else if (type === "134013") {
+      baseFertilizer = Math.max(
+        (target_N * 100) / N_percent,
+        (target_P * 100) / P_percent,
+        (target_K * 100) / K_percent,
+      );
+    } else if (type === "npks00002308") {
       baseFertilizer = (target_K * 100) / K_percent;
     } else {
       // Original calculation for other fertilizers
@@ -530,8 +929,8 @@ const FertilizerCalculator = () => {
       provides: {
         N: N_from_base.toFixed(2),
         P: P_from_base.toFixed(2),
-        K: K_from_base.toFixed(2)
-      }
+        K: K_from_base.toFixed(2),
+      },
     };
   };
 
@@ -545,14 +944,14 @@ const FertilizerCalculator = () => {
     const totalDeficitK = deficit.potassium * totalArea;
 
     // For balanced fertilizers like 19-19-19, calculate based on the limiting nutrient
-    if (fertilizerId === 'npk191919') {
+    if (fertilizerId === "npk191919") {
       const nReq = (totalDeficitN * 100) / fertilizer.n;
       const pReq = (totalDeficitP * 100) / fertilizer.p;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(nReq, pReq, kReq).toFixed(2);
     }
 
-    if (fertilizerId === 'npk134013') {
+    if (fertilizerId === "npk134013") {
       const nReq = (totalDeficitN * 100) / fertilizer.n;
       const pReq = (totalDeficitP * 100) / fertilizer.p;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
@@ -560,31 +959,31 @@ const FertilizerCalculator = () => {
     }
 
     // For MAP (12-61-00) - primarily for Phosphorus
-    if (fertilizerId === 'map') {
+    if (fertilizerId === "map") {
       return ((totalDeficitP * 100) / fertilizer.p).toFixed(2);
     }
 
     // For MKP (00-52-34) - primarily for Phosphorus and Potassium
-    if (fertilizerId === 'mkp') {
+    if (fertilizerId === "mkp") {
       const pReq = (totalDeficitP * 100) / fertilizer.p;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(pReq, kReq).toFixed(2);
     }
 
     // For MOP Water Soluble (00-00-50) - primarily for Potassium
-    if (fertilizerId === 'mop_ws') {
+    if (fertilizerId === "mop_ws") {
       return ((totalDeficitK * 100) / fertilizer.k).toFixed(2);
     }
 
     // For PN (13-00-45) - primarily for Nitrogen and Potassium
-    if (fertilizerId === 'pn') {
+    if (fertilizerId === "pn") {
       const nReq = (totalDeficitN * 100) / fertilizer.n;
       const kReq = (totalDeficitK * 100) / fertilizer.k;
       return Math.max(nReq, kReq).toFixed(2);
     }
 
     // For NPKS (00-00-23-08) - primarily for Potassium
-    if (fertilizerId === 'npks00002308') {
+    if (fertilizerId === "npks00002308") {
       return ((totalDeficitK * 100) / fertilizer.k).toFixed(2);
     }
 
@@ -592,19 +991,39 @@ const FertilizerCalculator = () => {
   };
 
   const getRecommendations = () => {
-    if (!useSoilAnalysis || !soilAnalysis.nitrogen || !soilAnalysis.phosphorus || !soilAnalysis.potassium) {
+    if (
+      !useSoilAnalysis ||
+      !soilAnalysis.nitrogen ||
+      !soilAnalysis.phosphorus ||
+      !soilAnalysis.potassium
+    ) {
       return null;
     }
 
     const nitrogenLevel = getNutrientLevel("nitrogen", soilAnalysis.nitrogen);
-    const phosphorusLevel = getNutrientLevel("phosphorus", soilAnalysis.phosphorus);
-    const potassiumLevel = getNutrientLevel("potassium", soilAnalysis.potassium);
+    const phosphorusLevel = getNutrientLevel(
+      "phosphorus",
+      soilAnalysis.phosphorus,
+    );
+    const potassiumLevel = getNutrientLevel(
+      "potassium",
+      soilAnalysis.potassium,
+    );
 
     return (
       <div className="mt-4 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200 shadow-sm transition-all duration-300 hover:shadow-md">
         <h3 className="text-lg font-bold text-center text-blue-700 mb-3 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-5 w-5 mr-2"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clipRule="evenodd"
+            />
           </svg>
           {t.soilAnalysisRecommendations}
         </h3>
@@ -614,9 +1033,14 @@ const FertilizerCalculator = () => {
               <span className="inline-block w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
               {t.nitrogen.split(" (")[0]}: {soilAnalysis.nitrogen} kg/ha
             </h4>
-            <p className="text-sm text-gray-600 mt-1">{language === 'en' ? 'Level' : 'स्तर'} {nitrogenLevel.level} ({nitrogenLevel.range})</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {language === "en" ? "Level" : "स्तर"} {nitrogenLevel.level} (
+              {nitrogenLevel.range})
+            </p>
             <p className="text-sm font-medium text-blue-800 mt-1">
-              {language === 'en' ? nitrogenLevel.recommendation : nitrogenLevel.recommendationMarathi}
+              {language === "en"
+                ? nitrogenLevel.recommendation
+                : nitrogenLevel.recommendationMarathi}
             </p>
           </div>
           <div className="bg-white p-3 rounded-lg shadow-xs">
@@ -624,9 +1048,14 @@ const FertilizerCalculator = () => {
               <span className="inline-block w-3 h-3 bg-green-500 rounded-full mr-2"></span>
               {t.phosphorus.split(" (")[0]}: {soilAnalysis.phosphorus} kg/ha
             </h4>
-            <p className="text-sm text-gray-600 mt-1">{language === 'en' ? 'Level' : 'स्तर'} {phosphorusLevel.level} ({phosphorusLevel.range})</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {language === "en" ? "Level" : "स्तर"} {phosphorusLevel.level} (
+              {phosphorusLevel.range})
+            </p>
             <p className="text-sm font-medium text-green-800 mt-1">
-              {language === 'en' ? phosphorusLevel.recommendation : phosphorusLevel.recommendationMarathi}
+              {language === "en"
+                ? phosphorusLevel.recommendation
+                : phosphorusLevel.recommendationMarathi}
             </p>
           </div>
           <div className="bg-white p-3 rounded-lg shadow-xs">
@@ -634,9 +1063,14 @@ const FertilizerCalculator = () => {
               <span className="inline-block w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
               {t.potassium.split(" (")[0]}: {soilAnalysis.potassium} kg/ha
             </h4>
-            <p className="text-sm text-gray-600 mt-1">{language === 'en' ? 'Level' : 'स्तर'} {potassiumLevel.level} ({potassiumLevel.range})</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {language === "en" ? "Level" : "स्तर"} {potassiumLevel.level} (
+              {potassiumLevel.range})
+            </p>
             <p className="text-sm font-medium text-yellow-800 mt-1">
-              {language === 'en' ? potassiumLevel.recommendation : potassiumLevel.recommendationMarathi}
+              {language === "en"
+                ? potassiumLevel.recommendation
+                : potassiumLevel.recommendationMarathi}
             </p>
           </div>
         </div>
@@ -645,10 +1079,12 @@ const FertilizerCalculator = () => {
   };
 
   const handlePrint = () => {
-    const printWindow = window.open('', '', 'width=1200,height=800');
+    const printWindow = window.open("", "", "width=1200,height=800");
 
     const getFertilizerName = (id) => {
-      return language === 'en' ? fertilizers[id].name : fertilizers[id].nameMarathi;
+      return language === "en"
+        ? fertilizers[id].name
+        : fertilizers[id].nameMarathi;
     };
 
     // Separate fertilizers by type
@@ -660,129 +1096,130 @@ const FertilizerCalculator = () => {
     if (selectedFertilizers.dap) {
       const { urea, dap } = calculateUreaAndDAP(npk.nitrogen, npk.phosphorus);
       complexFertilizers.push({
-        name: `${getFertilizerName('dap')}`,
+        name: `${getFertilizerName("dap")}`,
         amount: dap,
-        supplements: [
-          { name: getFertilizerName('urea'), amount: urea }
-        ]
+        supplements: [{ name: getFertilizerName("urea"), amount: urea }],
       });
     } else if (selectedFertilizers.urea) {
       straightFertilizers.push({
-        name: getFertilizerName('urea'),
-        amount: calculateFertilizer(npk.nitrogen, fertilizers.urea.n)
+        name: getFertilizerName("urea"),
+        amount: calculateFertilizer(npk.nitrogen, fertilizers.urea.n),
       });
     }
 
     if (selectedFertilizers.ssp) {
       straightFertilizers.push({
-        name: getFertilizerName('ssp'),
-        amount: calculateFertilizer(npk.phosphorus, fertilizers.ssp.p)
+        name: getFertilizerName("ssp"),
+        amount: calculateFertilizer(npk.phosphorus, fertilizers.ssp.p),
       });
     }
 
     if (selectedFertilizers.mop) {
       straightFertilizers.push({
-        name: getFertilizerName('mop'),
-        amount: calculateFertilizer(npk.potassium, fertilizers.mop.k)
+        name: getFertilizerName("mop"),
+        amount: calculateFertilizer(npk.potassium, fertilizers.mop.k),
       });
     }
 
     if (selectedFertilizers.sop) {
       straightFertilizers.push({
-        name: getFertilizerName('sop'),
-        amount: calculateFertilizer(npk.potassium, fertilizers.sop.k)
+        name: getFertilizerName("sop"),
+        amount: calculateFertilizer(npk.potassium, fertilizers.sop.k),
       });
     }
 
     if (selectedFertilizers.Ammonium_Sulphate) {
       straightFertilizers.push({
-        name: getFertilizerName('Ammonium_Sulphate'),
-        amount: calculateFertilizer(npk.nitrogen, fertilizers.Ammonium_Sulphate.n)
+        name: getFertilizerName("Ammonium_Sulphate"),
+        amount: calculateFertilizer(
+          npk.nitrogen,
+          fertilizers.Ammonium_Sulphate.n,
+        ),
       });
     }
 
     // Complex fertilizers
     if (selectedFertilizers.npk123216) {
-      const npkData = calculateNPK('123216');
+      const npkData = calculateNPK("123216");
       complexFertilizers.push({
-        name: getFertilizerName('npk123216'),
+        name: getFertilizerName("npk123216"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
     if (selectedFertilizers.npk082424) {
-      const npkData = calculateNPK('082424');
+      const npkData = calculateNPK("082424");
       complexFertilizers.push({
-        name: getFertilizerName('npk082424'),
+        name: getFertilizerName("npk082424"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
     if (selectedFertilizers.npk092424) {
-      const npkData = calculateNPK('092424');
+      const npkData = calculateNPK("092424");
       complexFertilizers.push({
-        name: getFertilizerName('npk092424'),
+        name: getFertilizerName("npk092424"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
     if (selectedFertilizers.npk102626) {
-      const npkData = calculateNPK('102626');
+      const npkData = calculateNPK("102626");
       complexFertilizers.push({
-        name: getFertilizerName('npk102626'),
+        name: getFertilizerName("npk102626"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
     if (selectedFertilizers.npk282800) {
-      const npkData = calculateNPK('282800');
+      const npkData = calculateNPK("282800");
       complexFertilizers.push({
-        name: getFertilizerName('npk282800'),
+        name: getFertilizerName("npk282800"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
     if (selectedFertilizers.npk143514) {
-      const npkData = calculateNPK('143514');
+      const npkData = calculateNPK("143514");
       complexFertilizers.push({
-        name: getFertilizerName('npk143514'),
+        name: getFertilizerName("npk143514"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
     if (selectedFertilizers.npk20200013) {
-      const npkData = calculateNPK('20200013');
+      const npkData = calculateNPK("20200013");
       complexFertilizers.push({
-        name: getFertilizerName('npk20200013'),
+        name: getFertilizerName("npk20200013"),
         amount: npkData.baseFertilizer,
         supplements: [
-          { name: getFertilizerName('urea'), amount: npkData.urea },
-          { name: getFertilizerName('mop'), amount: npkData.mop }
-        ]
+          { name: getFertilizerName("urea"), amount: npkData.urea },
+          { name: getFertilizerName("mop"), amount: npkData.mop },
+        ],
       });
     }
 
@@ -791,50 +1228,50 @@ const FertilizerCalculator = () => {
 
     if (selectedFertilizers.map) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('map'),
-        amount: calculateWaterSolubleFertilizer('map', deficit)
+        name: getFertilizerName("map"),
+        amount: calculateWaterSolubleFertilizer("map", deficit),
       });
     }
 
     if (selectedFertilizers.mkp) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('mkp'),
-        amount: calculateWaterSolubleFertilizer('mkp', deficit)
+        name: getFertilizerName("mkp"),
+        amount: calculateWaterSolubleFertilizer("mkp", deficit),
       });
     }
 
     if (selectedFertilizers.mop_ws) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('mop_ws'),
-        amount: calculateWaterSolubleFertilizer('mop_ws', deficit)
+        name: getFertilizerName("mop_ws"),
+        amount: calculateWaterSolubleFertilizer("mop_ws", deficit),
       });
     }
 
     if (selectedFertilizers.pn) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('pn'),
-        amount: calculateWaterSolubleFertilizer('pn', deficit)
+        name: getFertilizerName("pn"),
+        amount: calculateWaterSolubleFertilizer("pn", deficit),
       });
     }
 
     if (selectedFertilizers.npk191919) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('npk191919'),
-        amount: calculateWaterSolubleFertilizer('npk191919', deficit)
+        name: getFertilizerName("npk191919"),
+        amount: calculateWaterSolubleFertilizer("npk191919", deficit),
       });
     }
 
     if (selectedFertilizers.npk134013) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('npk134013'),
-        amount: calculateWaterSolubleFertilizer('npk134013', deficit)
+        name: getFertilizerName("npk134013"),
+        amount: calculateWaterSolubleFertilizer("npk134013", deficit),
       });
     }
 
     if (selectedFertilizers.npks00002308) {
       waterSolubleFertilizers.push({
-        name: getFertilizerName('npks00002308'),
-        amount: calculateWaterSolubleFertilizer('npks00002308', deficit)
+        name: getFertilizerName("npks00002308"),
+        amount: calculateWaterSolubleFertilizer("npks00002308", deficit),
       });
     }
 
@@ -845,7 +1282,7 @@ const FertilizerCalculator = () => {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>${language === 'en' ? 'Fertilizer Recommendation Report' : 'खत शिफारस अहवाल'}</title>
+          <title>${language === "en" ? "Fertilizer Recommendation Report" : "खत शिफारस अहवाल"}</title>
           <style>
             @page {
               size: A4;
@@ -1187,7 +1624,7 @@ const FertilizerCalculator = () => {
             }
           </style>
         </head>
-        <body class="${isMarathi ? 'marathi-text' : ''}">
+        <body class="${isMarathi ? "marathi-text" : ""}">
           <div class="print-container">
             <!-- Header with Logos -->
             <div class="logo-container">
@@ -1205,7 +1642,7 @@ const FertilizerCalculator = () => {
             <div style="margin-top:0px;">
               <div style="margin-top:1px;">
                 <div style="text-align: center; margin-top: 0px;">
-                  <div class="report-title">${language === 'en' ? '🌱 Fertilizer Recommendation Report' : '🌱 खत शिफारस अहवाल'}</div>
+                  <div class="report-title">${language === "en" ? "🌱 Fertilizer Recommendation Report" : "🌱 खत शिफारस अहवाल"}</div>
                   <div class="report-subtitle">${new Date().toLocaleDateString()}</div>
                 </div> 
               </div>
@@ -1219,11 +1656,11 @@ const FertilizerCalculator = () => {
                       <tbody>
                         <tr>
                           <td width="40%"><strong>${t.crop}</strong></td>
-                          <td width="60%">${language === 'en' ? selectedCrop.charAt(0).toUpperCase() + selectedCrop.slice(1) : cropNamesMarathi[selectedCrop] || selectedCrop}</td>
+                          <td width="60%">${language === "en" ? selectedCrop.charAt(0).toUpperCase() + selectedCrop.slice(1) : cropNamesMarathi[selectedCrop] || selectedCrop}</td>
                         </tr>
                         <tr>
                           <td><strong>${t.soilType}</strong></td>
-                          <td>${language === 'en' ? selectedSoil : soilTypesMarathi[soilTypes.indexOf(selectedSoil)]}</td>
+                          <td>${language === "en" ? selectedSoil : soilTypesMarathi[soilTypes.indexOf(selectedSoil)]}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1233,7 +1670,7 @@ const FertilizerCalculator = () => {
                       <tbody>
                         <tr>
                           <td width="40%"><strong>${t.area.split(" (")[0]}</strong></td>
-                          <td width="60%">${totalArea} ${language === 'en' ? 'hectares' : 'हेक्टर'}</td>
+                          <td width="60%">${totalArea} ${language === "en" ? "hectares" : "हेक्टर"}</td>
                         </tr>
                         <tr>
                           <td><strong>${t.soilAnalysis}</strong></td>
@@ -1246,7 +1683,9 @@ const FertilizerCalculator = () => {
               </div>
 
               <!-- Soil Analysis Results -->
-              ${useSoilAnalysis ? `
+              ${
+                useSoilAnalysis
+                  ? `
                 <!--
               <div class="print-section allow-break">
                 <h3>${t.soilAnalysisTitle}</h3>
@@ -1274,33 +1713,44 @@ const FertilizerCalculator = () => {
                 </table>
               </div>
               -->
-              ` : ''}
+              `
+                  : ""
+              }
 
               <!-- Soil Analysis Recommendations -->
-             <!-- ${useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium ? `
+             <!-- ${
+               useSoilAnalysis &&
+               soilAnalysis.nitrogen &&
+               soilAnalysis.phosphorus &&
+               soilAnalysis.potassium
+                 ? `
               <div class="print-section allow-break"> -->
 
                <h3>${t.soilAnalysisRecommendations}</h3>
                 <!-- <div style="margin-bottom: 8px; font-size: 10px;">
                   <strong>${t.nitrogen.split(" (")[0]}: ${soilAnalysis.nitrogen} kg/ha</strong><br>
-                  ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).level} (${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).range})<br>
-                  ${language === 'en' ? getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendation : getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendationMarathi}
+                  ${language === "en" ? "Level" : "स्तर"} ${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).level} (${getNutrientLevel("nitrogen", soilAnalysis.nitrogen).range})<br>
+                  ${language === "en" ? getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendation : getNutrientLevel("nitrogen", soilAnalysis.nitrogen).recommendationMarathi}
                 </div>
                 <div style="margin-bottom:8px; font-size: 10px;">
                   <strong>${t.phosphorus.split(" (")[0]}: ${soilAnalysis.phosphorus} kg/ha</strong><br>
-                  ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).level} (${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).range})<br>
-                  ${language === 'en' ? getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendation : getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendationMarathi}
+                  ${language === "en" ? "Level" : "स्तर"} ${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).level} (${getNutrientLevel("phosphorus", soilAnalysis.phosphorus).range})<br>
+                  ${language === "en" ? getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendation : getNutrientLevel("phosphorus", soilAnalysis.phosphorus).recommendationMarathi}
                 </div>
                 <div style="margin-bottom: 8px; font-size: 10px;">
                   <strong>${t.potassium.split(" (")[0]}: ${soilAnalysis.potassium} kg/ha</strong><br>
-                  ${language === 'en' ? 'Level' : 'स्तर'} ${getNutrientLevel("potassium", soilAnalysis.potassium).level} (${getNutrientLevel("potassium", soilAnalysis.potassium).range})<br>
-                  ${language === 'en' ? getNutrientLevel("potassium", soilAnalysis.potassium).recommendation : getNutrientLevel("potassium", soilAnalysis.potassium).recommendationMarathi}
+                  ${language === "en" ? "Level" : "स्तर"} ${getNutrientLevel("potassium", soilAnalysis.potassium).level} (${getNutrientLevel("potassium", soilAnalysis.potassium).range})<br>
+                  ${language === "en" ? getNutrientLevel("potassium", soilAnalysis.potassium).recommendation : getNutrientLevel("potassium", soilAnalysis.potassium).recommendationMarathi}
                 </div>
               </div> -->
-              ` : ''}
+              `
+                 : ""
+             }
               
               <!-- Deficit Calculation for Water Soluble Fertilizers -->
-              ${waterSolubleFertilizers.length > 0 ? `
+              ${
+                waterSolubleFertilizers.length > 0
+                  ? `
               <div class="print-section allow-break">
                 <h3>${t.deficitCalculation}</h3>
                 <table class="deficit-table">
@@ -1334,18 +1784,18 @@ const FertilizerCalculator = () => {
                   </tbody>
                 </table>
               </div>
-              ` : ''}
-
-              
-
-        
+              `
+                  : ""
+              }
 
               <!-- Fertilizer Recommendations -->
               <div class="print-section allow-break">
                 <h3>${t.fertilizerRecommendations}</h3>
                 
-                ${straightFertilizers.length > 0 ? `
-                <div class="fertilizer-type-title">${language === 'en' ? 'Straight Fertilizers' : 'सरळ खते'}</div>
+                ${
+                  straightFertilizers.length > 0
+                    ? `
+                <div class="fertilizer-type-title">${language === "en" ? "Straight Fertilizers" : "सरळ खते"}</div>
                 <table class="print-table">
                   <thead>
                     <tr>
@@ -1354,44 +1804,75 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${straightFertilizers.map(fertilizer => `
+                    ${straightFertilizers
+                      .map(
+                        (fertilizer) => `
                     <tr>
                       <td>${fertilizer.name}</td>
                       <td>${fertilizer.amount}</td>
                     </tr>
-                    `).join('')}
+                    `,
+                      )
+                      .join("")}
                   </tbody>
                 </table>
-                ` : ''}
-                
-                ${complexFertilizers.length > 0 ? `
-                <div class="fertilizer-type-title">${language === 'en' ? 'Complex Fertilizers' : 'कॉम्प्लेक्स खते'}</div>
-                <table class="print-table">
-                  <thead>
-                    <tr>
-                      <th>${t.fertilizer}</th>
-                      <th>${t.required} (kg)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${complexFertilizers.map(fertilizer => `
-                    <tr>
-                      <td><strong>${fertilizer.name}</strong></td>
-                      <td><strong>${fertilizer.amount}</strong></td>
-                    </tr>
-                    ${fertilizer.supplements ? fertilizer.supplements.map(supplement => `
-                    <tr class="supplement-row">
-                      <td class="supplement-cell">+ ${supplement.name}</td>
-                      <td>${supplement.amount}</td>
-                    </tr>
-                    `).join('') : ''}
-                    `).join('')}
-                  </tbody>
-                </table>
-                ` : ''}
-                
-                ${waterSolubleFertilizers.length > 0 ? `
-                <div class="fertilizer-type-title">${language === 'en' ? 'Water Soluble Fertilizers' : 'वॉटर सोल्युबल खते'}</div>
+                `
+                    : ""
+                }
+             
+                ${
+                  complexFertilizers.length > 0
+                    ? `
+<div class="fertilizer-type-title" style="margin-bottom: 6px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+    <span style="font-weight: bold; font-size: 11px;">${language === "en" ? "Complex Fertilizers" : "कॉम्प्लेक्स खते"}</span>
+  </div>
+  <div style="font-size: 10 px; font-weight: normal; color: #92400e; background-color: #fffbeb; padding: 3px 6px; border-radius: 4px; border: 1px solid #fde68a; margin-top: 4px; display: inline-block; width: auto; max-width: 100%;">
+     ${t.fertilizerNote}
+  </div>
+</div>
+<table class="print-table">
+  <thead>
+    <tr>
+      <th>${t.fertilizer}</th>
+      <th>${t.required} (kg)</th>
+    </tr>
+  </thead>
+  <tbody>
+    ${complexFertilizers
+      .map(
+        (fertilizer) => `
+    <tr>
+      <td><strong>${fertilizer.name}</strong></td>
+      <td><strong>${fertilizer.amount}</strong></td>
+    </tr>
+    ${
+      fertilizer.supplements
+        ? fertilizer.supplements
+            .map(
+              (supplement) => `
+    <tr class="supplement-row">
+      <td class="supplement-cell">+ ${supplement.name}</td>
+      <td>${supplement.amount}</td>
+    </tr>
+    `,
+            )
+            .join("")
+        : ""
+    }
+    `,
+      )
+      .join("")}
+  </tbody>
+</table>
+`
+                    : ""
+                }
+
+                ${
+                  waterSolubleFertilizers.length > 0
+                    ? `
+                <div class="fertilizer-type-title">${language === "en" ? "Water Soluble Fertilizers" : "वॉटर सोल्युबल खते"}</div>
                 <table class="print-table">
                   <thead>
                     <tr>
@@ -1400,15 +1881,21 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${waterSolubleFertilizers.map(fertilizer => `
+                    ${waterSolubleFertilizers
+                      .map(
+                        (fertilizer) => `
                     <tr>
                       <td>${fertilizer.name}</td>
                       <td>${fertilizer.amount}</td>
                     </tr>
-                    `).join('')}
+                    `,
+                      )
+                      .join("")}
                   </tbody>
                 </table>
-                ` : ''}
+                `
+                    : ""
+                }
               </div>
 
               <hr style="margin: 15px 0; border: 1px solid #000;">
@@ -1425,13 +1912,17 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${secondaryMicronutrients.map(item => `
+                    ${secondaryMicronutrients
+                      .map(
+                        (item) => `
                     <tr>
                       <td>${item.nutrient}</td>
                       <td>${item.range}</td>
                       <td>${item.recommendation}</td>
                     </tr>
-                    `).join('')}
+                    `,
+                      )
+                      .join("")}
                   </tbody>
                 </table>
               </div>
@@ -1448,13 +1939,17 @@ const FertilizerCalculator = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    ${micronutrients.map(item => `
+                    ${micronutrients
+                      .map(
+                        (item) => `
                     <tr> 
                       <td>${item.nutrient}</td> 
                       <td>${item.range}</td> 
                       <td>${item.recommendation}</td> 
                     </tr>
-                    `).join('')}
+                    `,
+                      )
+                      .join("")}
                   </tbody>
                 </table>
               </div>
@@ -1473,15 +1968,19 @@ const FertilizerCalculator = () => {
                   <div class="lab-notes">
                     <p class="note-title">${t.note}</p>
                     <ul class="note-items">
-                      ${language === "en" ? `
+                      ${
+                        language === "en"
+                          ? `
                         <li>The report cannot be used for court purpose.</li>
                         <li>The results refer only tested samples and applicable.</li>
                         <li>The liability of our laboratory is limited to the invoice amount.</li>
-                      ` : `
+                      `
+                          : `
                         <li>हा अहवाल न्यायालयीन हेतूसाठी वापरला जाऊ शकत नाही.</li>
                         <li>निकाल केवळ चाचणी केलेल्या नमुन्यांना संदर्भित करतात आणि लागू आहेत.</li>
                         <li>आमच्या प्रयोगशाळेची जबाबदारी चलनवाढीच्या रकमेपर्यंत मर्यादित आहे.</li>
-                      `}
+                      `
+                      }
                     </ul>
                   </div>
                 </div>
@@ -1493,7 +1992,7 @@ const FertilizerCalculator = () => {
                 </div>
                 <div class="authorization-text">
                   ${t.authorizedBy}<br>
-                  <strong>${language === 'en' ? 'Mr. Yogesh Nikam' : 'श्री. योगेश निकम'}<br></strong>
+                  <strong>${language === "en" ? "Mr. Yogesh Nikam" : "श्री. योगेश निकम"}<br></strong>
                   <strong>${t.md}</strong>
                 </div>
               </div>
@@ -1586,7 +2085,9 @@ const FertilizerCalculator = () => {
     }, 1000);
   };
 
-  const npk = selectedCrop ? cropData[selectedCrop] : { nitrogen: 0, phosphorus: 0, potassium: 0 };
+  const npk = selectedCrop
+    ? cropData[selectedCrop]
+    : { nitrogen: 0, phosphorus: 0, potassium: 0 };
   const deficit = calculateDeficit();
 
   return (
@@ -1609,9 +2110,7 @@ const FertilizerCalculator = () => {
               </select>
             </div>
           </div>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            {t.subtitle}
-          </p>
+          <p className="text-gray-600 max-w-2xl mx-auto">{t.subtitle}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl">
@@ -1622,8 +2121,19 @@ const FertilizerCalculator = () => {
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   <span className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"
+                      />
                     </svg>
                     {t.selectCrop}
                   </span>
@@ -1645,8 +2155,19 @@ const FertilizerCalculator = () => {
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   <span className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     {t.soilType}
                   </span>
@@ -1658,7 +2179,7 @@ const FertilizerCalculator = () => {
                 >
                   {soilTypes.map((soil, index) => (
                     <option key={soil} value={soil}>
-                      {language === 'en' ? soil : soilTypesMarathi[index]}
+                      {language === "en" ? soil : soilTypesMarathi[index]}
                     </option>
                   ))}
                 </select>
@@ -1668,15 +2189,26 @@ const FertilizerCalculator = () => {
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   <span className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"
+                      />
                     </svg>
                     {t.area}
                   </span>
                 </label>
                 <input
                   type="number"
-                  value={totalArea || ''}
+                  value={totalArea || ""}
                   onChange={(e) => {
                     const value = parseFloat(e.target.value);
                     setTotalArea(isNaN(value) ? 0 : value);
@@ -1684,7 +2216,9 @@ const FertilizerCalculator = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-150"
                   min="0.1"
                   step="0.1"
-                  placeholder={language === 'en' ? "Enter area" : "क्षेत्रफळ प्रविष्ट करा"}
+                  placeholder={
+                    language === "en" ? "Enter area" : "क्षेत्रफळ प्रविष्ट करा"
+                  }
                 />
               </div>
 
@@ -1697,10 +2231,24 @@ const FertilizerCalculator = () => {
                   onChange={toggleSoilAnalysis}
                   className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded transition duration-150"
                 />
-                <label htmlFor="useSoilAnalysis" className="text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="useSoilAnalysis"
+                  className="text-sm font-medium text-gray-700"
+                >
                   <span className="flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
                     </svg>
                     {t.useSoilAnalysis}
                   </span>
@@ -1712,43 +2260,60 @@ const FertilizerCalculator = () => {
             {useSoilAnalysis && (
               <div className="mt-6 bg-gradient-to-r from-yellow-50 to-amber-50 p-4 rounded-lg border border-yellow-200 shadow-sm transition-all duration-300 hover:shadow-md">
                 <h3 className="text-lg font-semibold text-center text-yellow-700 mb-3 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                   {t.soilAnalysisTitle}
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">{t.nitrogen}</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t.nitrogen}
+                    </label>
                     <input
                       type="number"
                       name="nitrogen"
                       value={soilAnalysis.nitrogen}
                       onChange={handleSoilAnalysisChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition duration-150"
-                      placeholder={language === 'en' ? "N value" : "N मूल्य"}
+                      placeholder={language === "en" ? "N value" : "N मूल्य"}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">{t.phosphorus}</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t.phosphorus}
+                    </label>
                     <input
                       type="number"
                       name="phosphorus"
                       value={soilAnalysis.phosphorus}
                       onChange={handleSoilAnalysisChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition duration-150"
-                      placeholder={language === 'en' ? "P value" : "P मूल्य"}
+                      placeholder={language === "en" ? "P value" : "P मूल्य"}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">{t.potassium}</label>
+                    <label className="block text-sm font-medium text-gray-700">
+                      {t.potassium}
+                    </label>
                     <input
                       type="number"
                       name="potassium"
                       value={soilAnalysis.potassium}
                       onChange={handleSoilAnalysisChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition duration-150"
-                      placeholder={language === 'en' ? "K value" : "K मूल्य"}
+                      placeholder={language === "en" ? "K value" : "K मूल्य"}
                     />
                   </div>
                 </div>
@@ -1759,16 +2324,29 @@ const FertilizerCalculator = () => {
             )}
 
             {/* Recommendations */}
-            {useSoilAnalysis && soilAnalysis.nitrogen && soilAnalysis.phosphorus && soilAnalysis.potassium && (
-              getRecommendations()
-            )}
+            {useSoilAnalysis &&
+              soilAnalysis.nitrogen &&
+              soilAnalysis.phosphorus &&
+              soilAnalysis.potassium &&
+              getRecommendations()}
           </div>
 
           {/* Fertilizer Selection */}
           <div className="border-t border-gray-200 px-6 py-4 bg-gray-50">
             <h3 className="text-lg font-semibold text-gray-800 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 inline-block mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
               </svg>
               {t.selectFertilizers}
             </h3>
@@ -1776,13 +2354,15 @@ const FertilizerCalculator = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Straight Fertilizers */}
               <div>
-                <h4 className="text-md font-semibold text-gray-700 mb-2">{t.straightFertilizers}</h4>
+                <h4 className="text-md font-semibold text-gray-700 mb-2">
+                  {t.straightFertilizers}
+                </h4>
                 <div className="grid grid-cols-1 gap-3">
                   {straightFertilizers.map((fertilizer) => (
                     <div
                       key={fertilizer.id}
                       className={`flex items-center p-2 rounded-md border ${fertilizer.color} transition-all duration-200 
-                            ${selectedFertilizers[fertilizer.id] ? 'ring-2 ring-offset-1 ring-green-500' : ''}`}
+                            ${selectedFertilizers[fertilizer.id] ? "ring-2 ring-offset-1 ring-green-500" : ""}`}
                     >
                       <input
                         type="checkbox"
@@ -1792,8 +2372,13 @@ const FertilizerCalculator = () => {
                         onChange={handleFertilizerChange}
                         className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label htmlFor={fertilizer.id} className="ml-2 text-sm font-medium text-gray-700">
-                        {language === 'en' ? fertilizer.label : fertilizer.labelMarathi}
+                      <label
+                        htmlFor={fertilizer.id}
+                        className="ml-2 text-sm font-medium text-gray-700"
+                      >
+                        {language === "en"
+                          ? fertilizer.label
+                          : fertilizer.labelMarathi}
                       </label>
                     </div>
                   ))}
@@ -1802,13 +2387,15 @@ const FertilizerCalculator = () => {
 
               {/* Complex Fertilizers */}
               <div>
-                <h4 className="text-md font-semibold text-gray-700 mb-2">{t.complexFertilizers}</h4>
+                <h4 className="text-md font-semibold text-gray-700 mb-2">
+                  {t.complexFertilizers}
+                </h4>
                 <div className="grid grid-cols-1 gap-3">
                   {complexFertilizers.map((fertilizer) => (
                     <div
                       key={fertilizer.id}
                       className={`flex items-center p-2 rounded-md border ${fertilizer.color} transition-all duration-200 
-                            ${selectedFertilizers[fertilizer.id] ? 'ring-2 ring-offset-1 ring-green-500' : ''}`}
+                            ${selectedFertilizers[fertilizer.id] ? "ring-2 ring-offset-1 ring-green-500" : ""}`}
                     >
                       <input
                         type="checkbox"
@@ -1818,8 +2405,13 @@ const FertilizerCalculator = () => {
                         onChange={handleFertilizerChange}
                         className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label htmlFor={fertilizer.id} className="ml-2 text-sm font-medium text-gray-700">
-                        {language === 'en' ? fertilizer.label : fertilizer.labelMarathi}
+                      <label
+                        htmlFor={fertilizer.id}
+                        className="ml-2 text-sm font-medium text-gray-700"
+                      >
+                        {language === "en"
+                          ? fertilizer.label
+                          : fertilizer.labelMarathi}
                       </label>
                     </div>
                   ))}
@@ -1828,13 +2420,15 @@ const FertilizerCalculator = () => {
 
               {/* Water Soluble Fertilizers */}
               <div>
-                <h4 className="text-md font-semibold text-gray-700 mb-2">{t.waterSolubleFertilizers}</h4>
+                <h4 className="text-md font-semibold text-gray-700 mb-2">
+                  {t.waterSolubleFertilizers}
+                </h4>
                 <div className="grid grid-cols-1 gap-3">
                   {waterSolubleFertilizers.map((fertilizer) => (
                     <div
                       key={fertilizer.id}
                       className={`flex items-center p-2 rounded-md border ${fertilizer.color} transition-all duration-200 
-                            ${selectedFertilizers[fertilizer.id] ? 'ring-2 ring-offset-1 ring-green-500' : ''}`}
+                            ${selectedFertilizers[fertilizer.id] ? "ring-2 ring-offset-1 ring-green-500" : ""}`}
                     >
                       <input
                         type="checkbox"
@@ -1844,8 +2438,13 @@ const FertilizerCalculator = () => {
                         onChange={handleFertilizerChange}
                         className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                       />
-                      <label htmlFor={fertilizer.id} className="ml-2 text-sm font-medium text-gray-700">
-                        {language === 'en' ? fertilizer.label : fertilizer.labelMarathi}
+                      <label
+                        htmlFor={fertilizer.id}
+                        className="ml-2 text-sm font-medium text-gray-700"
+                      >
+                        {language === "en"
+                          ? fertilizer.label
+                          : fertilizer.labelMarathi}
                       </label>
                     </div>
                   ))}
@@ -1858,45 +2457,64 @@ const FertilizerCalculator = () => {
           <div className="border-t border-gray-200 p-6 bg-gray-50">
             <div className="flex border-b border-gray-200 mb-4">
               <button
-                className={`py-2 px-4 font-medium ${activeTab === 'macronutrients'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                onClick={() => setActiveTab('macronutrients')}
+                className={`py-2 px-4 font-medium ${
+                  activeTab === "macronutrients"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("macronutrients")}
               >
                 {t.macronutrients}
               </button>
 
               <button
-                className={`py-2 px-4 font-medium ${activeTab === 'Secondary micronutrients'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                onClick={() => setActiveTab('Secondary micronutrients')}
+                className={`py-2 px-4 font-medium ${
+                  activeTab === "Secondary micronutrients"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("Secondary micronutrients")}
               >
                 {t.secondaryMicronutrients}
               </button>
 
               <button
-                className={`py-2 px-4 font-medium ${activeTab === 'micronutrients'
-                  ? 'text-green-600 border-b-2 border-green-600'
-                  : 'text-gray-500 hover:text-gray-700'
-                  }`}
-                onClick={() => setActiveTab('micronutrients')}
+                className={`py-2 px-4 font-medium ${
+                  activeTab === "micronutrients"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("micronutrients")}
               >
                 {t.micronutrients}
               </button>
-
             </div>
 
-            {activeTab === 'macronutrients' ? (
+            {activeTab === "macronutrients" ? (
               <>
                 {/* Deficit Calculation for Water Soluble Fertilizers */}
-                {(selectedFertilizers.map || selectedFertilizers.mkp || selectedFertilizers.mop_ws || selectedFertilizers.pn || selectedFertilizers.npk191919 || selectedFertilizers.npk134013 || selectedFertilizers.npks00002308) && (
+                {(selectedFertilizers.map ||
+                  selectedFertilizers.mkp ||
+                  selectedFertilizers.mop_ws ||
+                  selectedFertilizers.pn ||
+                  selectedFertilizers.npk191919 ||
+                  selectedFertilizers.npk134013 ||
+                  selectedFertilizers.npks00002308) && (
                   <div className="mb-6">
                     <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 inline-block mr-2"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                        />
                       </svg>
                       {t.deficitCalculation}
                     </h3>
@@ -1904,16 +2522,28 @@ const FertilizerCalculator = () => {
                       <table className="min-w-full divide-y divide-gray-200">
                         <thead className="bg-gray-100">
                           <tr>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               {t.nutrient}
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               {t.cropRequirement} (kg/ha)
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               {t.soilAvailable} (kg/ha)
                             </th>
-                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
                               {t.deficit} (kg/ha)
                             </th>
                           </tr>
@@ -1927,7 +2557,9 @@ const FertilizerCalculator = () => {
                               {npk.nitrogen}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {useSoilAnalysis && soilAnalysis.nitrogen ? soilAnalysis.nitrogen : 0}
+                              {useSoilAnalysis && soilAnalysis.nitrogen
+                                ? soilAnalysis.nitrogen
+                                : 0}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
                               {deficit.nitrogen.toFixed(2)}
@@ -1941,7 +2573,9 @@ const FertilizerCalculator = () => {
                               {npk.phosphorus}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {useSoilAnalysis && soilAnalysis.phosphorus ? soilAnalysis.phosphorus : 0}
+                              {useSoilAnalysis && soilAnalysis.phosphorus
+                                ? soilAnalysis.phosphorus
+                                : 0}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
                               {deficit.phosphorus.toFixed(2)}
@@ -1955,7 +2589,9 @@ const FertilizerCalculator = () => {
                               {npk.potassium}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {useSoilAnalysis && soilAnalysis.potassium ? soilAnalysis.potassium : 0}
+                              {useSoilAnalysis && soilAnalysis.potassium
+                                ? soilAnalysis.potassium
+                                : 0}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-red-600">
                               {deficit.potassium.toFixed(2)}
@@ -1967,9 +2603,14 @@ const FertilizerCalculator = () => {
 
                     {/* Formula Display */}
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="text-md font-semibold text-blue-800 mb-2">{t.formula}</h4>
+                      <h4 className="text-md font-semibold text-blue-800 mb-2">
+                        {t.formula}
+                      </h4>
                       <div className="text-sm text-gray-700 font-mono bg-white p-3 rounded border">
-                        <strong>Fertilizer Dose (kg/ha) = Deficit (kg/ha) × 100 ÷ Nutrient % in fertilizer</strong>
+                        <strong>
+                          Fertilizer Dose (kg/ha) = Deficit (kg/ha) × 100 ÷
+                          Nutrient % in fertilizer
+                        </strong>
                       </div>
                     </div>
                   </div>
@@ -1977,8 +2618,19 @@ const FertilizerCalculator = () => {
 
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 inline-block mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                      />
                     </svg>
                     {t.nutrientRequirements}
                   </h3>
@@ -1986,10 +2638,16 @@ const FertilizerCalculator = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
                             {t.nutrient}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
                             {t.required}
                           </th>
                         </tr>
@@ -2026,8 +2684,19 @@ const FertilizerCalculator = () => {
 
                 <div>
                   <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 inline-block mr-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
+                      />
                     </svg>
                     {t.fertilizerRecommendations}
                   </h3>
@@ -2035,10 +2704,16 @@ const FertilizerCalculator = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
                             {t.fertilizer}
                           </th>
-                          <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
                             {t.required}
                           </th>
                         </tr>
@@ -2048,18 +2723,32 @@ const FertilizerCalculator = () => {
                           <>
                             <tr>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
+                                {language === "en"
+                                  ? fertilizers.urea.name
+                                  : fertilizers.urea.nameMarathi}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateUreaAndDAP(npk.nitrogen, npk.phosphorus).urea}
+                                {
+                                  calculateUreaAndDAP(
+                                    npk.nitrogen,
+                                    npk.phosphorus,
+                                  ).urea
+                                }
                               </td>
                             </tr>
                             <tr>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                {language === 'en' ? fertilizers.dap.name : fertilizers.dap.nameMarathi}
+                                {language === "en"
+                                  ? fertilizers.dap.name
+                                  : fertilizers.dap.nameMarathi}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateUreaAndDAP(npk.nitrogen, npk.phosphorus).dap}
+                                {
+                                  calculateUreaAndDAP(
+                                    npk.nitrogen,
+                                    npk.phosphorus,
+                                  ).dap
+                                }
                               </td>
                             </tr>
                           </>
@@ -2067,10 +2756,15 @@ const FertilizerCalculator = () => {
                           selectedFertilizers.urea && (
                             <tr>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
+                                {language === "en"
+                                  ? fertilizers.urea.name
+                                  : fertilizers.urea.nameMarathi}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateFertilizer(npk.nitrogen, fertilizers.urea.n)}
+                                {calculateFertilizer(
+                                  npk.nitrogen,
+                                  fertilizers.urea.n,
+                                )}
                               </td>
                             </tr>
                           )
@@ -2078,40 +2772,60 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.ssp && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                              {language === 'en' ? fertilizers.ssp.name : fertilizers.ssp.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.ssp.name
+                                : fertilizers.ssp.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateFertilizer(npk.phosphorus, fertilizers.ssp.p)}
+                              {calculateFertilizer(
+                                npk.phosphorus,
+                                fertilizers.ssp.p,
+                              )}
                             </td>
                           </tr>
                         )}
                         {selectedFertilizers.mop && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">
-                              {language === 'en' ? fertilizers.mop.name : fertilizers.mop.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.mop.name
+                                : fertilizers.mop.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateFertilizer(npk.potassium, fertilizers.mop.k)}
+                              {calculateFertilizer(
+                                npk.potassium,
+                                fertilizers.mop.k,
+                              )}
                             </td>
                           </tr>
                         )}
                         {selectedFertilizers.sop && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">
-                              {language === 'en' ? fertilizers.sop.name : fertilizers.sop.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.sop.name
+                                : fertilizers.sop.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateFertilizer(npk.potassium, fertilizers.sop.k)}
+                              {calculateFertilizer(
+                                npk.potassium,
+                                fertilizers.sop.k,
+                              )}
                             </td>
                           </tr>
                         )}
                         {selectedFertilizers.Ammonium_Sulphate && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">
-                              {language === 'en' ? fertilizers.Ammonium_Sulphate.name : fertilizers.Ammonium_Sulphate.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.Ammonium_Sulphate.name
+                                : fertilizers.Ammonium_Sulphate.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateFertilizer(npk.nitrogen, fertilizers.Ammonium_Sulphate.n)}
+                              {calculateFertilizer(
+                                npk.nitrogen,
+                                fertilizers.Ammonium_Sulphate.n,
+                              )}
                             </td>
                           </tr>
                         )}
@@ -2121,26 +2835,32 @@ const FertilizerCalculator = () => {
                           <>
                             <tr>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-600">
-                                {language === 'en' ? fertilizers.npk123216.name : fertilizers.npk123216.nameMarathi}
+                                {language === "en"
+                                  ? fertilizers.npk123216.name
+                                  : fertilizers.npk123216.nameMarathi}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('123216').baseFertilizer}
+                                {calculateNPK("123216").baseFertilizer}
                               </td>
                             </tr>
                             <tr>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                {language === 'en' ? fertilizers.urea.name : fertilizers.urea.nameMarathi}
+                                {language === "en"
+                                  ? fertilizers.urea.name
+                                  : fertilizers.urea.nameMarathi}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('123216').urea}
+                                {calculateNPK("123216").urea}
                               </td>
                             </tr>
                             <tr>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-yellow-600">
-                                {language === 'en' ? fertilizers.mop.name : fertilizers.mop.nameMarathi}
+                                {language === "en"
+                                  ? fertilizers.mop.name
+                                  : fertilizers.mop.nameMarathi}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {calculateNPK('123216').mop}
+                                {calculateNPK("123216").mop}
                               </td>
                             </tr>
                           </>
@@ -2150,10 +2870,12 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.map && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-teal-600">
-                              {language === 'en' ? fertilizers.map.name : fertilizers.map.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.map.name
+                                : fertilizers.map.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('map', deficit)}
+                              {calculateWaterSolubleFertilizer("map", deficit)}
                             </td>
                           </tr>
                         )}
@@ -2161,10 +2883,12 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.mkp && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-indigo-600">
-                              {language === 'en' ? fertilizers.mkp.name : fertilizers.mkp.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.mkp.name
+                                : fertilizers.mkp.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('mkp', deficit)}
+                              {calculateWaterSolubleFertilizer("mkp", deficit)}
                             </td>
                           </tr>
                         )}
@@ -2172,10 +2896,15 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.mop_ws && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-amber-600">
-                              {language === 'en' ? fertilizers.mop_ws.name : fertilizers.mop_ws.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.mop_ws.name
+                                : fertilizers.mop_ws.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('mop_ws', deficit)}
+                              {calculateWaterSolubleFertilizer(
+                                "mop_ws",
+                                deficit,
+                              )}
                             </td>
                           </tr>
                         )}
@@ -2183,10 +2912,12 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.pn && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-cyan-600">
-                              {language === 'en' ? fertilizers.pn.name : fertilizers.pn.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.pn.name
+                                : fertilizers.pn.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('pn', deficit)}
+                              {calculateWaterSolubleFertilizer("pn", deficit)}
                             </td>
                           </tr>
                         )}
@@ -2194,10 +2925,15 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.npk191919 && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-pink-600">
-                              {language === 'en' ? fertilizers.npk191919.name : fertilizers.npk191919.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.npk191919.name
+                                : fertilizers.npk191919.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('npk191919', deficit)}
+                              {calculateWaterSolubleFertilizer(
+                                "npk191919",
+                                deficit,
+                              )}
                             </td>
                           </tr>
                         )}
@@ -2205,10 +2941,15 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.npk134013 && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-orange-600">
-                              {language === 'en' ? fertilizers.npk134013.name : fertilizers.npk134013.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.npk134013.name
+                                : fertilizers.npk134013.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('npk134013', deficit)}
+                              {calculateWaterSolubleFertilizer(
+                                "npk134013",
+                                deficit,
+                              )}
                             </td>
                           </tr>
                         )}
@@ -2216,10 +2957,15 @@ const FertilizerCalculator = () => {
                         {selectedFertilizers.npks00002308 && (
                           <tr>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-lime-600">
-                              {language === 'en' ? fertilizers.npks00002308.name : fertilizers.npks00002308.nameMarathi}
+                              {language === "en"
+                                ? fertilizers.npks00002308.name
+                                : fertilizers.npks00002308.nameMarathi}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {calculateWaterSolubleFertilizer('npks00002308', deficit)}
+                              {calculateWaterSolubleFertilizer(
+                                "npks00002308",
+                                deficit,
+                              )}
                             </td>
                           </tr>
                         )}
@@ -2230,11 +2976,22 @@ const FertilizerCalculator = () => {
                   </div>
                 </div>
               </>
-            ) : activeTab === 'Secondary micronutrients' ? (
+            ) : activeTab === "Secondary micronutrients" ? (
               <div>
                 <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 inline-block mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                   {t.secondaryMicronutrientRecommendations}
                 </h3>
@@ -2242,13 +2999,22 @@ const FertilizerCalculator = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           {t.secondaryMicronutrient}
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           {t.normalLimits}
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           {t.recommendation}
                         </th>
                       </tr>
@@ -2274,8 +3040,19 @@ const FertilizerCalculator = () => {
             ) : (
               <div>
                 <h3 className="text-lg font-semibold text-center text-gray-800 mb-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 inline-block mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                   {t.micronutrientRecommendations}
                 </h3>
@@ -2283,13 +3060,22 @@ const FertilizerCalculator = () => {
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-100">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           {t.nutrient}
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           {t.normalRange}
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           {t.recommendation}
                         </th>
                       </tr>
@@ -2333,14 +3119,36 @@ const FertilizerCalculator = () => {
               onClick={handlePrint}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
+                />
               </svg>
               {t.printReport}
             </button>
             <div className="text-sm text-gray-500 flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               {t.lastUpdated}: {new Date().toLocaleString()}
             </div>
