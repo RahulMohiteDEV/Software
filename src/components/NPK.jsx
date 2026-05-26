@@ -539,7 +539,7 @@ const translations = {
     deficit: "Deficit",
     formula: "Fertilizer Dose = Deficit × 100 / Nutrient % in fertilizer",
     fertilizerNote:
-      "Note:- Use any of these fertilizer recommendations available at your agricultural service center.",
+      "Note:- Use any one of these recommendations that is available at your nearby agricultural service center, and apply it in 2–3 stages.",
   },
   mr: {
     title: "स्मार्ट खत कॅल्क्युलेटर",
@@ -603,7 +603,7 @@ const translations = {
     deficit: "तूट",
     formula: "खत डोस = तूट × 100 / खतातील पोषक %",
     fertilizerNote:
-      "सूचना:- यापैकी कोणतेही एक शिफारस जी तुमच्या कृषी सेवा केंद्रात उपलब्ध असेल ती वापरावी. ",
+      "सूचना:- यापैकी कोणतेही ऐक शिफारस जी तुमच्या जवळील कृषी सेवा केंद्रात उपलब्ध असेल ती 2-3 टप्प्यात  वापरावी ",
   },
 };
 
